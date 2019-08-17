@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,13 @@ using System.Text.RegularExpressions;
 //base64 on var url
 namespace Tchotchomere
 {
+    public static class Helper
+    {
+        public static string StripHTML(this string input)
+        {
+            return Regex.Replace(input, "<.*?>", String.Empty);
+        }
+    }
     class Program
     {
         const string url = "https://teutorrent.com/";
@@ -18,6 +26,7 @@ namespace Tchotchomere
 
         static void Main(string[] args)
         {
+            GetInfo("");
             NewUrls.Add(url);
             OldUrls.Add(url);
             //do while...
@@ -50,8 +59,24 @@ namespace Tchotchomere
             }
             File.WriteAllText(@"C:\Users\Gabriel\Documents\GitHub\test123.txt", string.Join(Environment.NewLine, NewUrls.ToArray()));
         }
-    }
 
+        static void GetInfo(string html)
+        {
+            using (WebClient webClient = new WebClient())
+            {
+                webClient.Encoding = System.Text.Encoding.UTF8;
+                string content = webClient.DownloadString("https://teutorrent.com/vingadores-4-ultimato-2019-torrent-hd-720p-dublado-legendado-download/");
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(content);
+                var infoHTML = doc.DocumentNode.SelectNodes("//*[@class=\"content content-single\"]");
+                Console.WriteLine(infoHTML[0].InnerHtml);
+                string inner = infoHTML[0].InnerHtml;
+                Console.WriteLine(inner.Replace("<br>", "\n").StripHTML());
+
+            }
+        }
+    }
     public class LinkExtractor
     {
         /// <summary>
