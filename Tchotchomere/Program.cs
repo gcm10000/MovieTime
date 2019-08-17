@@ -71,8 +71,7 @@ namespace Tchotchomere
                 doc.LoadHtml(content);
                 var infoHTML = doc.DocumentNode.SelectNodes("//*[@class=\"content content-single\"]");
                 Console.WriteLine(infoHTML[0].InnerHtml);
-                string inner = infoHTML[0].InnerHtml;
-                Console.WriteLine(inner.Replace("<br>", "\n").StripHTML());
+                string inner = infoHTML[0].InnerHtml.Replace("<br>", "\n").StripHTML();
 
             }
         }
