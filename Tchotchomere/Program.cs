@@ -49,7 +49,7 @@ namespace Tchotchomere
             using (WebClient webClient = new WebClient())
             {
                 string content = webClient.DownloadString(link);
-                List<string> urls = LinkExtractor.Extract(content, link);
+                List<string> urls = LinkExtractor.ExtractUrl(content, link);
                 foreach (var url in urls.ToList())
                 {
                     if (!NewUrls.Contains(url) && (!OldUrls.Contains(url)))
@@ -70,9 +70,83 @@ namespace Tchotchomere
                 var doc = new HtmlDocument();
                 doc.LoadHtml(content);
                 var infoHTML = doc.DocumentNode.SelectNodes("//*[@class=\"content content-single\"]");
-                Console.WriteLine(infoHTML[0].InnerHtml);
-                string inner = infoHTML[0].InnerHtml.Replace("<br>", "\n").StripHTML();
+                var aHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"tooltip2\"]");
+                string infoText = infoHTML[0].InnerHtml.Replace("<br>", "\n").StripHTML();
+                string[] infoTextSplited = infoText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
+                Movie movie = new Movie();
+                foreach (var info in infoTextSplited)
+                {
+                    if (info.Contains("Baixar Filme:"))
+                    {
+                        movie.Title = info.Replace("Baixar Filme:", "").Trim();
+                    }
+                    else if (info.Contains("Titulo Original:"))
+                    {
+                        movie.TitleOriginal = info.Replace("Titulo Original:", "").Trim();
+                    }
+                    else if (info.Contains("IMDb:"))
+                    {
+                        movie.IMDb = info.Replace("IMDb:", "").Trim();
+                    }
+                    else if (info.Contains("Gênero:"))
+                    {
+                        movie.Gender = info.Replace("Gênero:", "").Trim();
+
+                    }
+                    else if (info.Contains("Ano de Lançamento:"))
+                    {
+                        movie.Year = info.Replace("Ano de Lançamento:", "").Trim();
+                    }
+                    else if (info.Contains("Qualidade:"))
+                    {
+                        movie.Quality = info.Replace("Qualidade:", "").Trim();
+                    }
+                    else if (info.Contains("Áudio:") && (movie.Audio == null))
+                    {
+                        movie.Audio = info.Replace("Áudio:", "").Trim();
+                    }
+                    else if (info.Contains("Legenda:"))
+                    {
+                        movie.Subtitle = info.Replace("Legenda:", "").Trim();
+                    }
+                    else if (info.Contains("Formato:"))
+                    {
+                        movie.Format = info.Replace("Formato:", "").Trim();
+                    }
+                    else if (info.Contains("Tamanho:"))
+                    {
+                        movie.Size = info.Replace("Tamanho:", "").Trim();
+                    }
+                    else if (info.Contains("Duração:"))
+                    {
+                        movie.Duration = info.Replace("Duração:", "").Trim();
+                    }
+                    else if (info.Contains("Sinopse:"))
+                    {
+                        movie.Synopsis = info.Replace("Sinopse:", "").Trim();
+                    }
+                }
+
+                var magnetTorrent = LinkExtractor.ExtractMagnet(content);
+                if (magnetTorrent.Count > 0)
+                {
+                    movie.Download = magnetTorrent[0];
+                }
+
+                Console.WriteLine("Title: " + movie.Title);
+                Console.WriteLine("TitleOriginal: " + movie.TitleOriginal);
+                Console.WriteLine("IMDb: " + movie.IMDb);
+                Console.WriteLine("Gender: " + movie.Gender);
+                Console.WriteLine("Year: " + movie.Year);
+                Console.WriteLine("Quality: " + movie.Quality);
+                Console.WriteLine("Audio: " + movie.Audio);
+                Console.WriteLine("Subtitle: " + movie.Subtitle);
+                Console.WriteLine("Format: " + movie.Format);
+                Console.WriteLine("Size: " + movie.Size);
+                Console.WriteLine("Duration: " + movie.Duration);
+                Console.WriteLine("Synopsis: " + movie.Synopsis);
+                Console.WriteLine("Download: " + movie.Download);
             }
         }
     }
@@ -83,7 +157,27 @@ namespace Tchotchomere
         /// </summary>
         /// <param name="html">The html source</param>
         /// <returns>A list of links - these will be all links including javascript ones.</returns>
-        public static List<string> Extract(string html, string url)
+        public static List<string> ExtractMagnet(string html)
+        {
+            List<string> list = new List<string>();
+
+            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            if (regex.IsMatch(html))
+            {
+                foreach (Match match in regex.Matches(html))
+                {
+                    Uri uri = new Uri(match.Groups[1].Value);
+                    if (match.Groups[1].Value.Contains("magnet:?"))
+                    {
+                        list.Add(match.Groups[1].Value);
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        public static List<string> ExtractUrl(string html, string url)
         {
             List<string> list = new List<string>();
             Uri uriOri = new Uri(url);
