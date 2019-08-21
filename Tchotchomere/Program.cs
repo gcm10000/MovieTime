@@ -26,7 +26,7 @@ namespace Tchotchomere
 
         static void Main(string[] args)
         {
-            //GetInfo("");
+            GetInfo("");
             NewUrls.Add(url);
             OldUrls.Add(url);
             //do while...
