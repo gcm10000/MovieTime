@@ -71,6 +71,7 @@
     <Content Include="wwwroot\img\img2.jpg" />
     <Content Include="wwwroot\img\img3.png" />
     <Content Include="wwwroot\index.html" />
+    <Content Include="wwwroot\information.html" />
     <Content Include="wwwroot\js\bootstrap.bundle.js" />
     <Content Include="wwwroot\js\bootstrap.bundle.min.js" />
     <Content Include="wwwroot\js\bootstrap.js" />
