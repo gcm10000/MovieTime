@@ -93,84 +93,71 @@ namespace Tchotchomere
             //    webClient.Encoding = System.Text.Encoding.UTF8;
             //    //string content = webClient.DownloadString("https://teutorrent.com/vingadores-4-ultimato-2019-torrent-hd-720p-dublado-legendado-download/");
             //}
-            var doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            var infoHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"content content-single\"]");
-            if (infoHTML == null) return;
-            //var aHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"tooltip2\"]");
-            string infoText = infoHTML.InnerHtml.Replace("<br>", "\n").StripHTML();
-            string[] infoTextSplited = infoText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-            Watch watch = new Watch();
-            DownloadData downloadData = new DownloadData();
-
-            foreach (var info in infoTextSplited)
+            try
             {
-                if (info.Contains("Baixar Filme:") || info.Contains("Baixar Série:"))
-                {
-                    watch.Title = info.Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Trim();
-                }
-                else if (info.Contains("Titulo Original:"))
-                {
-                    watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim();
-                }
-                else if (info.Contains("Qualidade:"))
-                {
-                    downloadData.Quality = info.Replace("Qualidade:", "").Trim();
-                }
-                else if (info.Contains("Áudio:") && (downloadData.Audio == string.Empty))
-                {
-                    downloadData.Audio = info.Replace("Áudio:", "").Trim();
-                }
-                else if (info.Contains("Legenda:"))
-                {
-                    watch.Subtitle = info.Replace("Legenda:", "").Trim();
-                }
-                else if (info.ToLower().Contains("formato:"))
-                {
-                    downloadData.Format = info.ToLower().Replace("formato:", "").ToUpper().Trim();
-                }
-                else if (info.ToLower().Contains("tamanho:"))
-                {
-                    downloadData.Size = info.ToLower().Replace("tamanho:", "").ToUpper().Trim();
-                }
-                else if (info.ToLower().Contains("duração:"))
-                {
-                    watch.Duration = info.ToLower().Replace("duração:", "").Trim();
-                }
-            }
 
-            var links = doc.DocumentNode.SelectNodes("//a");
-            var linksInside = infoHTML.SelectNodes(".//a");
 
-            if (url.ToLower().Contains("temporada"))
-            {
-                //It's a series!
-                watch.Type = Watch.TypeWatch.Series;
-            }
-            else
-            {
-                //It's a movie!
-                watch.Type = Watch.TypeWatch.Movie;
-            }
-            if (linksInside == null)
-            {
-                foreach (var link in links)
+                var doc = new HtmlDocument();
+                doc.LoadHtml(html);
+                var infoHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"content content-single\"]");
+                if (infoHTML == null) return;
+                //var aHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"tooltip2\"]");
+                string infoText = infoHTML.InnerHtml.Replace("<br>", "\n").StripHTML();
+                string[] infoTextSplited = infoText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                Watch watch = new Watch();
+                DownloadData downloadData = new DownloadData();
+
+                foreach (var info in infoTextSplited)
                 {
-                    if (link.Attributes["href"] != null)
+                    if (info.Contains("Baixar Filme:") || info.Contains("Baixar Série:"))
                     {
-                        var magnet = link.Attributes["href"].Value;
-                        if (magnet.Contains("magnet:?"))
-                        {
-                            downloadData.DownloadText = magnet;
-                            watch.Downloads.Add(downloadData);
-                        }
+                        watch.Title = info.Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Trim();
+                    }
+                    else if (info.Contains("Titulo Original:"))
+                    {
+                        watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim();
+                    }
+                    else if (info.Contains("Qualidade:"))
+                    {
+                        downloadData.Quality = info.Replace("Qualidade:", "").Trim();
+                    }
+                    else if (info.Contains("Áudio:") && (downloadData.Audio == string.Empty))
+                    {
+                        downloadData.Audio = info.Replace("Áudio:", "").Trim();
+                    }
+                    else if (info.Contains("Legenda:"))
+                    {
+                        watch.Subtitle = info.Replace("Legenda:", "").Trim();
+                    }
+                    else if (info.ToLower().Contains("formato:"))
+                    {
+                        downloadData.Format = info.ToLower().Replace("formato:", "").ToUpper().Trim();
+                    }
+                    else if (info.ToLower().Contains("tamanho:"))
+                    {
+                        downloadData.Size = info.ToLower().Replace("tamanho:", "").ToUpper().Trim();
+                    }
+                    else if (info.ToLower().Contains("duração:"))
+                    {
+                        watch.Duration = info.ToLower().Replace("duração:", "").Trim();
                     }
                 }
-            }
-            else
-            {
-                if (linksInside.Count == 1)
+
+                var links = doc.DocumentNode.SelectNodes("//a");
+                var linksInside = infoHTML.SelectNodes(".//a");
+
+                if (url.ToLower().Contains("temporada"))
+                {
+                    //It's a series!
+                    watch.Type = Watch.TypeWatch.Series;
+                }
+                else
+                {
+                    //It's a movie!
+                    watch.Type = Watch.TypeWatch.Movie;
+                }
+                if (linksInside == null)
                 {
                     foreach (var link in links)
                     {
@@ -185,51 +172,74 @@ namespace Tchotchomere
                         }
                     }
                 }
-                else if (linksInside.Count > 1)
+                else
                 {
-                    //It's a series!
-                    watch.Type = Watch.TypeWatch.Series;
-                    List<string> arraydownload = new List<string>();
-                    foreach (var link in linksInside)
+                    if (linksInside.Count == 1)
                     {
-                        var magnet = link.Attributes["href"].Value;
-                        if (magnet.Contains("magnet:?"))
+                        foreach (var link in links)
                         {
-                            arraydownload.Add(magnet);
-                            DownloadData data = new DownloadData();
-                            data = downloadData;
-                            data.DownloadText = magnet;
-                            watch.Downloads.Add(data);
-
+                            if (link.Attributes["href"] != null)
+                            {
+                                var magnet = link.Attributes["href"].Value;
+                                if (magnet.Contains("magnet:?"))
+                                {
+                                    downloadData.DownloadText = magnet;
+                                    watch.Downloads.Add(downloadData);
+                                }
+                            }
                         }
                     }
+                    else if (linksInside.Count > 1)
+                    {
+                        //It's a series!
+                        watch.Type = Watch.TypeWatch.Series;
+                        List<string> arraydownload = new List<string>();
+                        foreach (var link in linksInside)
+                        {
+                            var magnet = link.Attributes["href"].Value;
+                            if (magnet.Contains("magnet:?"))
+                            {
+                                arraydownload.Add(magnet);
+                                DownloadData data = new DownloadData();
+                                data = downloadData;
+                                data.DownloadText = magnet;
+                                watch.Downloads.Add(data);
 
+                            }
+                        }
+
+                    }
                 }
+
+                //Get Info On TheMovieDB
+                watch = GetInfoOnTheMovieDB(watch);
+
+                //---OUTPUT---
+                Console.WriteLine("Information from TeuTorrent:");
+                Console.WriteLine("Title: " + watch.Title);
+                Console.WriteLine("TitleOriginal: " + watch.TitleOriginal);
+                Console.WriteLine("Subtitle: " + watch.Subtitle);
+                Console.WriteLine("Duration: " + watch.Duration);
+                Console.WriteLine("Information of download:");
+                Console.WriteLine("Total Count: " + watch.Downloads.Count.ToString());
+                int i = 1;
+                foreach (var info in watch.Downloads)
+                {
+                    Console.WriteLine(" {0}) ", i++);
+                    Console.WriteLine(" Quality: " + info.Quality);
+                    Console.WriteLine(" Audio: " + info.Audio);
+                    Console.WriteLine(" Format: " + info.Format);
+                    Console.WriteLine(" Size: " + info.Size);
+                    Console.WriteLine(" Magnet: " + info.DownloadText);
+                }
+
+                //DB here
             }
-
-
-            //Get Info On TheMovieDB
-            watch = GetInfoOnTheMovieDB(watch);
-
-
-            //---OUTPUT---
-            Console.WriteLine("Information from TeuTorrent:");
-            Console.WriteLine("Title: " + watch.Title);
-            Console.WriteLine("TitleOriginal: " + watch.TitleOriginal);
-            Console.WriteLine("Subtitle: " + watch.Subtitle);
-            Console.WriteLine("Duration: " + watch.Duration);
-            Console.WriteLine("Information of download:");
-            Console.WriteLine("Total Count: " + watch.Downloads.Count.ToString());
-            int i = 1;
-            foreach (var info in watch.Downloads)
+            catch (Exception)
             {
-                Console.WriteLine(" {0}) ", i++);
-                Console.WriteLine(" Quality: " + info.Quality);
-                Console.WriteLine(" Audio: " + info.Audio);
-                Console.WriteLine(" Format: " + info.Format);
-                Console.WriteLine(" Size: " + info.Size);
-                Console.WriteLine(" Magnet: " + info.DownloadText);
+
             }
+
         }
 
         static Watch GetInfoOnTheMovieDB(Watch watch)
