@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Tchotchomere
 {
-    class Movie : Watch
+    class Series : Watch
     {
-        public string Download { get; set; }
+        public string[] Download { get; set; }
     }
 }
