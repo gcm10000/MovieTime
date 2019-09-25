@@ -81,4 +81,49 @@ namespace Tchotchomere
         }
 
     }
+    public static class Genre
+    {
+        public static Dictionary<int, string> MovieWatch { get; } = new Dictionary<int, string>()
+        {
+            { 28, "Ação" },
+            { 12, "Aventura" },
+            { 16, "Animação" },
+            { 35, "Comédia" },
+            { 80, "Crime" },
+            { 99, "Documentário" },
+            { 18, "Drama" },
+            { 10751, "Família" },
+            { 14, "Fantasia" },
+            { 36, "História" },
+            { 27, "Terror" },
+            { 10402, "Música" },
+            { 9648, "Mistério" },
+            { 10749, "Romance" },
+            { 878, "Ficção Científica" },
+            { 10770, "Cinema TV" },
+            { 53, "Thriller" },
+            { 10752, "Guerra" },
+            { 37, "Faoreste" },
+        };
+        public static Dictionary<int, string> TVWatch { get; } = new Dictionary<int, string>()
+        {
+            { 10759, "Ação e Aventura" },
+            { 16, "Animação" },
+            { 35, "Comédia" },
+            { 80, "Crime" },
+            { 99, "Documentário" },
+            { 18, "Drama" },
+            { 10751, "Família" },
+            { 10762, "Kids" },
+            { 9648, "Mistério" },
+            { 10763, "News" },
+            { 10764, "Reality" },
+            { 10765, "Ficção Científica e Fantasia" },
+            { 10766, "Soap" },
+            { 10767, "Talk" },
+            { 10768, "Guerra e Política" },
+            { 37, "Faroeste" },
+        };
+    }
+
 }

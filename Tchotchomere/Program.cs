@@ -38,7 +38,13 @@ namespace Tchotchomere
             //    GetInfo(content, url);
             //}
 
-            GetInfoOnTheMovieDB("Breaking Bad", Watch.TypeWatch.Series) ;
+            //int x = Helper.LevenshteinDistance.Compute("Annabelle 3: De Volta", "Annabelle 3: De Volta Para Casa");
+
+            Watch watch = new Watch();
+            watch.Title = "Breaking Bad";
+            watch.Type = Watch.TypeWatch.Series;
+
+            GetInfoOnTheMovieDB(watch);
 
             CreatePaths();
             NewUrls.Add(url);
@@ -108,19 +114,6 @@ namespace Tchotchomere
                 {
                     watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim();
                 }
-                else if (info.Contains("IMDb:"))
-                {
-                    watch.IMDb = info.Replace("IMDb:", "").Trim();
-                }
-                else if (info.Contains("Gênero:"))
-                {
-                    watch.Gender = info.Replace("Gênero:", "").Trim();
-
-                }
-                else if ((info.Contains("Ano de Lançamento:")) || (info.Contains("Lançamento:")))
-                {
-                    watch.Year = info.Replace("Ano de Lançamento:", "").Replace("Lançamento:", "").Trim();
-                }
                 else if (info.Contains("Qualidade:"))
                 {
                     downloadData.Quality = info.Replace("Qualidade:", "").Trim();
@@ -145,19 +138,23 @@ namespace Tchotchomere
                 {
                     watch.Duration = info.ToLower().Replace("duração:", "").Trim();
                 }
-                else if (info.ToLower().Contains("sinopse"))
-                {
-                    watch.Synopsis = info.Replace("sinopse:", "").Replace("Sinopse:", "").Replace("SINOPSE:", "").Replace("SINOPSE DA SÉRIE:", "").Trim();
-                }
             }
 
             var links = doc.DocumentNode.SelectNodes("//a");
             var linksInside = infoHTML.SelectNodes(".//a");
+
+            if (url.ToLower().Contains("temporada"))
+            {
+                //It's a series!
+                watch.Type = Watch.TypeWatch.Series;
+            }
+            else
+            {
+                //It's a movie!
+                watch.Type = Watch.TypeWatch.Movie;
+            }
             if (linksInside == null)
             {
-                //Series only magnet
-                watch.Type = Watch.TypeWatch.Series;
-
                 foreach (var link in links)
                 {
                     if (link.Attributes["href"] != null)
@@ -175,17 +172,6 @@ namespace Tchotchomere
             {
                 if (linksInside.Count == 1)
                 {
-                    if (url.ToLower().Contains("temporada"))
-                    {
-                        //It's a series!
-                        watch.Type = Watch.TypeWatch.Series;
-                    }
-                    else
-                    {
-                        //It's a movie!
-                        watch.Type = Watch.TypeWatch.Movie;
-                    }
-
                     foreach (var link in links)
                     {
                         if (link.Attributes["href"] != null)
@@ -198,8 +184,6 @@ namespace Tchotchomere
                             }
                         }
                     }
-
-
                 }
                 else if (linksInside.Count > 1)
                 {
@@ -224,15 +208,16 @@ namespace Tchotchomere
             }
 
 
+            //Get Info On TheMovieDB
+            watch = GetInfoOnTheMovieDB(watch);
+
+
             //---OUTPUT---
+            Console.WriteLine("Information from TeuTorrent:");
             Console.WriteLine("Title: " + watch.Title);
             Console.WriteLine("TitleOriginal: " + watch.TitleOriginal);
-            Console.WriteLine("IMDb: " + watch.IMDb);
-            Console.WriteLine("Gender: " + watch.Gender);
-            Console.WriteLine("Year: " + watch.Year);
             Console.WriteLine("Subtitle: " + watch.Subtitle);
             Console.WriteLine("Duration: " + watch.Duration);
-            Console.WriteLine("Synopsis: " + watch.Synopsis);
             Console.WriteLine("Information of download:");
             Console.WriteLine("Total Count: " + watch.Downloads.Count.ToString());
             int i = 1;
@@ -245,12 +230,9 @@ namespace Tchotchomere
                 Console.WriteLine(" Size: " + info.Size);
                 Console.WriteLine(" Magnet: " + info.DownloadText);
             }
-
-
-
         }
 
-        static void GetInfoOnTheMovieDB(string Title, Watch.TypeWatch type)
+        static Watch GetInfoOnTheMovieDB(Watch watch)
         {
             Uri baseUriQuery = new Uri("https://api.themoviedb.org/3/search/");
             //https://api.themoviedb.org/3/search/movie
@@ -258,27 +240,62 @@ namespace Tchotchomere
             //&page=1&include_adult=true&query=homem%20aranha%20de%20volta%20ao%20lar&language=pt-BR
             Uri uriQuery;
             string ResultQuery;
-            if (type == Watch.TypeWatch.Movie)
+            if (watch.Type == Watch.TypeWatch.Movie)
             {
                 uriQuery = new Uri(baseUriQuery, "movie")
                     .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f")
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
-                    .AddQuery("language", "pt-BR")
-                    .AddQuery("query", Title);
-                ResultQuery = GetResult(uriQuery);
-                MovieInformationQuery info = JsonConvert.DeserializeObject<MovieInformationQuery>(ResultQuery);
-                if (info.results != null)
+                    .AddQuery("language", "pt-BR");
+                var strQuery = (watch.Title != string.Empty) ? uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}" : uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
+                ResultQuery = GetResult(new Uri(strQuery));
+                MovieInformationQuery ResultsFromQuery = JsonConvert.DeserializeObject<MovieInformationQuery>(ResultQuery);
+                if (ResultsFromQuery.results != null)
                 {
-                    if (info.results.Length > 0)
+                    if (ResultsFromQuery.results.Length > 0)
                     {
-                        //https://api.themoviedb.org/3/movie/{movie_id}/external_ids?api_key=<<api_key>>
+                        List<int> numbersComputed = new List<int>();
+
+                        foreach (var info in ResultsFromQuery.results)
+                        {
+                            if (watch.Title != string.Empty)
+                            {
+                                numbersComputed.Add(Helper.LevenshteinDistance.Compute(watch.Title, info.title));
+                            }
+                            else if (watch.TitleOriginal != string.Empty)
+                            {
+                                numbersComputed.Add(Helper.LevenshteinDistance.Compute(watch.TitleOriginal, info.original_title));
+                            }
+                        }
+
+                        //return int[0] = index
+                        //return int[1] = value
+                        int x = GetMinNumber(numbersComputed.ToArray())[0];
+                        var Info = ResultsFromQuery.results[x];
                         Uri baseQueryExternalId = new Uri("https://api.themoviedb.org/3/movie/");
-                        Uri uriExternalId = new Uri(baseQueryExternalId, $"{info.results[0].id}/external_ids")
+                        Uri uriExternalId = new Uri(baseQueryExternalId, $"{ResultsFromQuery.results[0].id}/external_ids")
                             .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
                         string ResultId = GetResult(uriExternalId);
+
                         ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
-                        //infoMovie.imdb_id
+                        watch.IDTheMovieDB = infoMovie.id;
+                        watch.IDIMDb = infoMovie.imdb_id;
+
+                        var genres = new List<string>();
+                        foreach (var genre in Info.genre_ids)
+                        {
+                            genres.Add(Genre.MovieWatch[genre]);
+                        }
+                        //watch.Title = (watch.Title == string.Empty) ? info.title : watch.Title; -> more cycle 
+                        watch.Title = Info.title;
+                        //watch.TitleOriginal = (watch.TitleOriginal == string.Empty) ? info.original_title : watch.TitleOriginal;
+                        watch.TitleOriginal = Info.original_title;
+                        watch.Synopsis = Info.overview;
+                        watch.Genre = genres.ToArray();
+                        watch.BackdropPicture = Info.backdrop_path;
+                        watch.PosterPicture = Info.poster_path;
+                        watch.Date = Info.release_date;
+                        return watch;
                     }
                 }
             }
@@ -288,25 +305,77 @@ namespace Tchotchomere
                     .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f")
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
-                    .AddQuery("language", "pt-BR")
-                    .AddQuery("query", Title);
-                ResultQuery = GetResult(uriQuery);
-                TVInformationQuery info = JsonConvert.DeserializeObject<TVInformationQuery>(ResultQuery);
-                if (info.results != null)
+                    .AddQuery("language", "pt-BR");
+                var strQuery = (watch.Title != string.Empty) ? uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}" : uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
+                ResultQuery = GetResult(new Uri(strQuery));
+                TVInformationQuery ResultsFromQuery = JsonConvert.DeserializeObject<TVInformationQuery>(ResultQuery);
+                if (ResultsFromQuery.results != null)
                 {
-                    if (info.results.Length > 0)
+                    if (ResultsFromQuery.results.Length > 0)
                     {
+                        List<int> numbersComputed = new List<int>();
+
+                        foreach (var info in ResultsFromQuery.results)
+                        {
+                            if (watch.Title != string.Empty)
+                            {
+                                numbersComputed.Add(Helper.LevenshteinDistance.Compute(watch.Title, info.name));
+                            }
+                            else if (watch.TitleOriginal != string.Empty)
+                            {
+                                numbersComputed.Add(Helper.LevenshteinDistance.Compute(watch.TitleOriginal, info.original_name));
+                            }
+                        }
+                        //return int[0] = index
+                        //return int[1] = value
+                        int x = GetMinNumber(numbersComputed.ToArray())[0];
+                        var Info = ResultsFromQuery.results[x];
+
                         Uri baseQueryExternalId = new Uri("https://api.themoviedb.org/3/tv/");
-                        Uri uriExternalId = new Uri(baseQueryExternalId, $"{info.results[0].id}/external_ids")
-                            .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
+                        Uri uriExternalId = new Uri(baseQueryExternalId, $"{ResultsFromQuery.results[0].id}/external_ids")
+            .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
                         string ResultId = GetResult(uriExternalId);
-                        ExternalID.Series infoSeries = JsonConvert.DeserializeObject<ExternalID.Series>(ResultId);
-                        //infoSeries.imdb_id
+
+                        ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
+                        watch.IDTheMovieDB = infoMovie.id;
+                        watch.IDIMDb = infoMovie.imdb_id;
+                        var genres = new List<string>();
+                        foreach (var genre in Info.genre_ids)
+                        {
+                            genres.Add(Genre.MovieWatch[genre]);
+                        }
+                        //watch.Title = (watch.Title == string.Empty) ? info.name : watch.Title;
+                        watch.Title = Info.name;
+                        //watch.TitleOriginal = (watch.TitleOriginal == string.Empty) ? info.original_name : watch.TitleOriginal;
+                        watch.TitleOriginal = Info.original_name;
+                        watch.Genre = genres.ToArray();
+                        watch.Synopsis = Info.overview;
+                        watch.BackdropPicture = Info.backdrop_path;
+                        watch.PosterPicture = Info.poster_path;
+                        watch.Date = Info.first_air_date;
+                        return watch;
                     }
                 }
             }
+            throw new NullReferenceException("Nada foi encontrado.");
         }
 
+        static int[] GetMinNumber(int[] numbers)
+        {
+            
+            int posicao_menor = 0;
+            int menor = numbers[0];
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                if (numbers[i] < menor)
+                {
+                    menor = numbers[i];
+                    posicao_menor = i;
+                }
+            }
+
+            return new int[] { posicao_menor, menor };
+        }
         public static string GetResult(Uri url)
         {
             string result = string.Empty;
