@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 //https://openlink.click/feroz/?b=d3d3LnRlY2hub2xvZ3ktdW5pdmVyc2UuY29t&url=aHR0cHM6Ly9ueWFhLnNpL2Rvd25sb2FkLzExNTU4OTYudG9ycmVudA==&user=136870344-8&type=2&vez=2&anali=
@@ -126,10 +125,6 @@ namespace Tchotchomere
                     {
                         downloadData.Audio = info.Replace("Áudio:", "").Trim();
                     }
-                    else if (info.Contains("Legenda:"))
-                    {
-                        watch.Subtitle = info.Replace("Legenda:", "").Trim();
-                    }
                     else if (info.ToLower().Contains("formato:"))
                     {
                         downloadData.Format = info.ToLower().Replace("formato:", "").ToUpper().Trim();
@@ -218,8 +213,16 @@ namespace Tchotchomere
                 Console.WriteLine("Information from TeuTorrent:");
                 Console.WriteLine("Title: " + watch.Title);
                 Console.WriteLine("TitleOriginal: " + watch.TitleOriginal);
-                Console.WriteLine("Subtitle: " + watch.Subtitle);
                 Console.WriteLine("Duration: " + watch.Duration);
+                int e = 1;
+                Console.WriteLine("Information of Subtitle:");
+                Console.WriteLine("Total Count: " + watch.Subtitles.Count.ToString());
+                foreach (var subtitle in watch.Subtitles)
+                {
+                    Console.WriteLine(" {0}) ", e++);
+                    Console.WriteLine("Language: " + subtitle.Lang);
+                    Console.WriteLine("Download: " + subtitle.DownloadText);
+                }
                 Console.WriteLine("Information of download:");
                 Console.WriteLine("Total Count: " + watch.Downloads.Count.ToString());
                 int i = 1;
@@ -234,6 +237,7 @@ namespace Tchotchomere
                 }
 
                 //DB here
+
             }
             catch (Exception)
             {

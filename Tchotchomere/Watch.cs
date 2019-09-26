@@ -6,8 +6,8 @@ namespace Tchotchomere
     {
         public enum TypeWatch
         {
-            Movie,
-            Series
+            Series = 0,
+            Movie = 1
         }
         #region Data from site
         public string Title { get; set; } = string.Empty;
@@ -15,7 +15,7 @@ namespace Tchotchomere
         public string Duration { get; set; } = string.Empty;
         public string Synopsis { get; set; } = string.Empty;
         public TypeWatch Type { get; set; }
-        public string Subtitle { get; set; } = string.Empty;
+        public List<Subtitle> Subtitles { get; set; } = new List<Subtitle>();
         public List<DownloadData> Downloads { get; set; } = new List<DownloadData>();
         #endregion
         #region Data from API
@@ -26,6 +26,5 @@ namespace Tchotchomere
         public string BackdropPicture { get; set; } = string.Empty;
         public string Date { get; set; } = string.Empty;
         #endregion
-        public string SubtitleDownload { get; set; } = string.Empty; //Download
     }
 }
