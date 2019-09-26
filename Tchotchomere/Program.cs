@@ -236,7 +236,27 @@ namespace Tchotchomere
                     Console.WriteLine(" Magnet: " + info.DownloadText);
                 }
 
-                //DB here
+                //Insert DB here
+                Commands cmd = new Commands();
+                int idWatch = cmd.InsertWatch(watch);
+
+                List<int> idDownloads = new List<int>();
+                foreach (var download in watch.Downloads)
+                {
+                    Commands command = new Commands();
+                    int idDownload = command.InsertDownload(download);
+                    command.InsertWatchDownload(idWatch, idDownload);
+                }
+                List<int> idSubtitles = new List<int>();
+                if (watch.Subtitles.Count > 0)
+                {
+                    foreach (var subtitle in watch.Subtitles)
+                    {
+                        Commands command = new Commands();
+                        int idSubtitle = command.InsertSubtitle(subtitle);
+                        command.InsertWatchSubtitle(idWatch, idSubtitle);
+                    }
+                }
 
             }
             catch (Exception)

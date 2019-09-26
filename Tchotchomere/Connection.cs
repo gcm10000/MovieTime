@@ -19,8 +19,6 @@ namespace Tchotchomere
         {
             if (conn.State == System.Data.ConnectionState.Closed)
                 conn.Open();
-            else
-                conn.Close();
             return conn;
         }
         public void Disconnect()

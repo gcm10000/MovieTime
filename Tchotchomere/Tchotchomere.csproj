@@ -64,7 +64,7 @@
     <Compile Include="Download.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Information.cs" />
-    <Compile Include="Insert.cs" />
+    <Compile Include="Commands.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
