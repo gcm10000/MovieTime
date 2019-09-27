@@ -19,6 +19,7 @@ namespace Tchotchomere
         static string path = Path.Combine(Environment.CurrentDirectory, "urls");
         static string PathNewUrls = Path.Combine(path, "newurls.json");
         static string PathOldUrls = Path.Combine(path, "oldurls.json");
+        static string PathErrorUrls = Path.Combine(path, "errorurls.json");
 
         static List<string> NewUrls = new List<string>();
         static List<string> OldUrls = new List<string>();
@@ -39,11 +40,11 @@ namespace Tchotchomere
 
             //int x = Helper.LevenshteinDistance.Compute("Annabelle 3: De Volta", "Annabelle 3: De Volta Para Casa");
 
-            Watch watch = new Watch();
-            watch.Title = "Breaking Bad";
-            watch.Type = Watch.TypeWatch.Series;
+            //Watch watch = new Watch();
+            //watch.Title = "FEAR THE WALKING DEAD";
+            //watch.Type = Watch.TypeWatch.Series;
 
-            GetInfoOnTheMovieDB(watch);
+            //GetInfoOnTheMovieDB(watch);
 
             CreatePaths();
             NewUrls.Add(url);
@@ -67,7 +68,6 @@ namespace Tchotchomere
             } while (NewUrls.Count > 0);
             Console.ReadKey();
         }
-
         static void AccessingUrl(string link)
         {
             using (WebClient webClient = new WebClient())
@@ -84,18 +84,17 @@ namespace Tchotchomere
                 GetInfoOnPage(content, link);
             }
         }
-
         static void GetInfoOnPage(string html, string url)
         {
+            //url = "https://teutorrent.com/lucifer-3o-temporada-2018-blu-ray-720p-download-torrent-dub-e-leg/";
             //using (WebClient webClient = new WebClient())
             //{
             //    webClient.Encoding = System.Text.Encoding.UTF8;
-            //    //string content = webClient.DownloadString("https://teutorrent.com/vingadores-4-ultimato-2019-torrent-hd-720p-dublado-legendado-download/");
+            //    html = webClient.DownloadString(url);
             //}
+
             try
             {
-
-
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
                 var infoHTML = doc.DocumentNode.SelectSingleNode("//*[@class=\"content content-single\"]");
@@ -111,11 +110,11 @@ namespace Tchotchomere
                 {
                     if (info.Contains("Baixar Filme:") || info.Contains("Baixar Série:"))
                     {
-                        watch.Title = info.Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Trim();
+                        watch.Title = info.Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Trim().CareTitle();
                     }
                     else if (info.Contains("Titulo Original:"))
                     {
-                        watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim();
+                        watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim().CareTitle();
                     }
                     else if (info.Contains("Qualidade:"))
                     {
@@ -141,11 +140,13 @@ namespace Tchotchomere
 
                 var links = doc.DocumentNode.SelectNodes("//a");
                 var linksInside = infoHTML.SelectNodes(".//a");
+                var h4Inside = infoHTML.SelectNodes(".//h4");
 
                 if (url.ToLower().Contains("temporada"))
                 {
                     //It's a series!
                     watch.Type = Watch.TypeWatch.Series;
+                    downloadData.SeasonTV = url.GetSeason();
                 }
                 else
                 {
@@ -158,7 +159,7 @@ namespace Tchotchomere
                     {
                         if (link.Attributes["href"] != null)
                         {
-                            var magnet = link.Attributes["href"].Value;
+                            var magnet = System.Web.HttpUtility.HtmlDecode(link.Attributes["href"].Value);
                             if (magnet.Contains("magnet:?"))
                             {
                                 downloadData.DownloadText = magnet;
@@ -188,21 +189,27 @@ namespace Tchotchomere
                     {
                         //It's a series!
                         watch.Type = Watch.TypeWatch.Series;
-                        List<string> arraydownload = new List<string>();
-                        foreach (var link in linksInside)
+                        if (h4Inside != null)
                         {
-                            var magnet = link.Attributes["href"].Value;
-                            if (magnet.Contains("magnet:?"))
+                            foreach (var h4 in h4Inside)
                             {
-                                arraydownload.Add(magnet);
-                                DownloadData data = new DownloadData();
-                                data = downloadData;
-                                data.DownloadText = magnet;
-                                watch.Downloads.Add(data);
-
+                                var a = h4.SelectSingleNode(".//a");
+                                var text = System.Web.HttpUtility.HtmlDecode(h4.InnerText).ToLower().RemoveDiacritics().Replace("–", "").Replace("download", "").Replace("episodio", "Episódio").Trim(); // – Download
+                                var magnet = System.Web.HttpUtility.HtmlDecode(a.Attributes["href"].Value);
+                                if (magnet.Contains("magnet:?"))
+                                {
+                                    DownloadData data = new DownloadData();
+                                    data.Quality = downloadData.Quality;
+                                    data.Audio = downloadData.Audio;
+                                    data.Format = downloadData.Format;
+                                    data.Size = downloadData.Size;
+                                    data.DownloadText = magnet;
+                                    data.EpisodeTV = text;
+                                    data.SeasonTV = url.GetSeason();
+                                    watch.Downloads.Add(data);
+                                }
                             }
                         }
-
                     }
                 }
 
@@ -238,16 +245,34 @@ namespace Tchotchomere
 
                 //Insert DB here
                 Commands cmd = new Commands();
-                int idWatch = cmd.InsertWatch(watch);
+                int count = cmd.CountWatch(watch.Title, watch.TitleOriginal);
+                int idWatch;
+                if (count == 0)
+                {
+                    Commands command = new Commands();
+                    idWatch = command.InsertWatch(watch);
+                }
+                else
+                {
+                    Commands command = new Commands();
+                    idWatch = command.IDWatch(watch.Title, watch.TitleOriginal);
+                }
 
-                List<int> idDownloads = new List<int>();
+
+                if (watch.Genres.Length > 0)
+                {
+                    foreach (var genre in watch.Genres)
+                    {
+                        Commands command = new Commands();
+                        command.InsertGenre(genre, idWatch);
+                    }
+                }
                 foreach (var download in watch.Downloads)
                 {
                     Commands command = new Commands();
                     int idDownload = command.InsertDownload(download);
                     command.InsertWatchDownload(idWatch, idDownload);
                 }
-                List<int> idSubtitles = new List<int>();
                 if (watch.Subtitles.Count > 0)
                 {
                     foreach (var subtitle in watch.Subtitles)
@@ -257,11 +282,14 @@ namespace Tchotchomere
                         command.InsertWatchSubtitle(idWatch, idSubtitle);
                     }
                 }
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
+                using (StreamWriter writer = new StreamWriter(PathErrorUrls, true))
+                {
+                    writer.WriteLine(ex.Message + ": " + url);
+                }
             }
 
         }
@@ -274,6 +302,7 @@ namespace Tchotchomere
             //&page=1&include_adult=true&query=homem%20aranha%20de%20volta%20ao%20lar&language=pt-BR
             Uri uriQuery;
             string ResultQuery;
+
             if (watch.Type == Watch.TypeWatch.Movie)
             {
                 uriQuery = new Uri(baseUriQuery, "movie")
@@ -325,7 +354,7 @@ namespace Tchotchomere
                         //watch.TitleOriginal = (watch.TitleOriginal == string.Empty) ? info.original_title : watch.TitleOriginal;
                         watch.TitleOriginal = Info.original_title;
                         watch.Synopsis = Info.overview;
-                        watch.Genre = genres.ToArray();
+                        watch.Genres = genres.ToArray();
                         watch.BackdropPicture = Info.backdrop_path;
                         watch.PosterPicture = Info.poster_path;
                         watch.Date = Info.release_date;
@@ -370,19 +399,23 @@ namespace Tchotchomere
             .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
                         string ResultId = GetResult(uriExternalId);
 
-                        ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
-                        watch.IDTheMovieDB = infoMovie.id;
-                        watch.IDIMDb = infoMovie.imdb_id;
+                        ExternalID.Series infoSeries = JsonConvert.DeserializeObject<ExternalID.Series>(ResultId);
+                        watch.IDTheMovieDB = infoSeries.id;
+                        watch.IDIMDb = infoSeries.imdb_id;
                         var genres = new List<string>();
+                        if (watch.Title.Contains("fear"))
+                        {
+
+                        }
                         foreach (var genre in Info.genre_ids)
                         {
-                            genres.Add(Genre.MovieWatch[genre]);
+                            genres.Add(Genre.TVWatch[genre]);
                         }
                         //watch.Title = (watch.Title == string.Empty) ? info.name : watch.Title;
                         watch.Title = Info.name;
                         //watch.TitleOriginal = (watch.TitleOriginal == string.Empty) ? info.original_name : watch.TitleOriginal;
                         watch.TitleOriginal = Info.original_name;
-                        watch.Genre = genres.ToArray();
+                        watch.Genres = genres.ToArray();
                         watch.Synopsis = Info.overview;
                         watch.BackdropPicture = Info.backdrop_path;
                         watch.PosterPicture = Info.poster_path;
@@ -451,6 +484,10 @@ namespace Tchotchomere
             if (!File.Exists(PathOldUrls))
             {
                 File.Create(PathOldUrls);
+            }
+            if (!File.Exists(PathErrorUrls))
+            {
+                File.Create(PathErrorUrls);
             }
         }
         static void ReleaseData(string Path, List<string> list)

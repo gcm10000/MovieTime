@@ -123,6 +123,7 @@ namespace Tchotchomere
             { 10767, "Talk" },
             { 10768, "Guerra e Política" },
             { 37, "Faroeste" },
+            { 27, "Horror" },
         };
     }
 

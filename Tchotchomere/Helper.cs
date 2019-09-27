@@ -14,6 +14,52 @@ namespace Tchotchomere
             return Regex.Replace(input, "<.*?>", String.Empty);
         }
 
+        public static string CareTitle(this string input)
+        {
+            string[] splitinput = input.Split(' ');
+            string newstring = string.Empty;
+            foreach (var word in splitinput)
+            {
+                if (!word.ToLower().Contains("temporada"))
+                {
+                    if (!((word.Contains("º")) || (word.Contains("ª"))))
+                    {
+                        newstring += word + " ";
+                    }
+                }
+            }
+            return newstring.TrimEnd();
+        }
+        public static int GetSeason(this string url)
+        {
+            int index = url.IndexOf("-temporada", 0);
+            int x = 0;
+            if (index > -1)
+            {
+                string str = url.Remove(index);
+                var split = str.Split('-');
+                string numberOnly = Regex.Replace(split[split.Length - 1], "[^0-9.]", "");
+                x = Convert.ToInt32(numberOnly);
+            }
+            return x;
+        }
+        public static string RemoveDiacritics(this string text)
+        {
+            var normalizedString = text.Normalize(System.Text.NormalizationForm.FormD);
+            var stringBuilder = new System.Text.StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        }
+
         public static Uri AddQuery(this Uri uri, string name, string value)
         {
             var httpValueCollection = HttpUtility.ParseQueryString(uri.Query);

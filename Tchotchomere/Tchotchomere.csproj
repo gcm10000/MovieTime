@@ -68,7 +68,6 @@
     <Compile Include="Movie.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Series.cs" />
     <Compile Include="Subtitle.cs" />
     <Compile Include="Watch.cs" />
   </ItemGroup>
