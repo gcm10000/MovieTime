@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace Tchotchomere
+namespace LibraryShared
 {
     //MOVIE -> movie
-    //https://api.themoviedb.org/3/search/movie?api_key=3cc7aa7a8972f7e07bba853a11fbd66f&page=1&include_adult=true&query=homem%20aranha%20de%20volta%20ao%20lar&language=pt-BR
+    //https://api.themoviedb.org/3/search/movie?api_key=<api_key>&page=1&include_adult=true&query=homem%20aranha%20de%20volta%20ao%20lar&language=pt-BR
     //SERIES -> tv
-    //https://api.themoviedb.org/3/search/tv?api_key=3cc7aa7a8972f7e07bba853a11fbd66f&language=pt-BR&page=1&include_adult=true&query=breaking%20bad
+    //https://api.themoviedb.org/3/search/tv?api_key=<api_key>&language=pt-BR&page=1&include_adult=true&query=breaking%20bad
     public class MovieInformationQuery
     {
         public int page { get; set; }

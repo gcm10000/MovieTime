@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using LibraryShared;
+
 
 //https://openlink.click/feroz/?b=d3d3LnRlY2hub2xvZ3ktdW5pdmVyc2UuY29t&url=aHR0cHM6Ly9ueWFhLnNpL2Rvd25sb2FkLzExNTU4OTYudG9ycmVudA==&user=136870344-8&type=2&vez=2&anali=
 //base64 on var url
@@ -16,6 +18,8 @@ namespace Tchotchomere
     {
         //API KEY THE MOVIE DB (v3 auth): 3cc7aa7a8972f7e07bba853a11fbd66f
         const string url = "https://teutorrent.com/";
+        const string ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
+        const string apiKey = "3cc7aa7a8972f7e07bba853a11fbd66f";
         static string path = Path.Combine(Environment.CurrentDirectory, "urls");
         static string PathNewUrls = Path.Combine(path, "newurls.json");
         static string PathOldUrls = Path.Combine(path, "oldurls.json");
@@ -86,7 +90,7 @@ namespace Tchotchomere
         }
         static void GetInfoOnPage(string html, string url)
         {
-            //url = "https://teutorrent.com/lucifer-3o-temporada-2018-blu-ray-720p-download-torrent-dub-e-leg/";
+            //url = "https://teutorrent.com/a-vida-moderna-de-rocko-volta-ao-lar-2019-blu-ray-1080p-download-torrent-dub-e-leg/";
             //using (WebClient webClient = new WebClient())
             //{
             //    webClient.Encoding = System.Text.Encoding.UTF8;
@@ -108,13 +112,13 @@ namespace Tchotchomere
 
                 foreach (var info in infoTextSplited)
                 {
-                    if (info.Contains("Baixar Filme:") || info.Contains("Baixar Série:"))
+                    if (info.Contains("Baixar:") || info.Contains("Baixar Filme:") || info.Contains("Baixar Série:") || info.Contains("Título Traduzido:") || info.Contains("Titulo Traduzido:"))
                     {
-                        watch.Title = info.Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Trim().CareTitle();
+                        watch.Title = info.Replace("Baixar:", "").Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Replace("Titulo Traduzido:", "").Replace("Título Traduzido:", "").Trim().CareTitle();
                     }
-                    else if (info.Contains("Titulo Original:"))
+                    else if (info.Contains("Titulo Original:") || info.Contains("Título Original:"))
                     {
-                        watch.TitleOriginal = info.Replace("Titulo Original:", "").Trim().CareTitle();
+                        watch.TitleOriginal = info.Replace("Titulo Original:", "").Replace("Título Original:", "").Trim().CareTitle();
                     }
                     else if (info.Contains("Qualidade:"))
                     {
@@ -244,17 +248,17 @@ namespace Tchotchomere
                 }
 
                 //Insert DB here
-                Commands cmd = new Commands();
+                Commands cmd = new Commands(ConnectionString);
                 int count = cmd.CountWatch(watch.Title, watch.TitleOriginal);
                 int idWatch;
                 if (count == 0)
                 {
-                    Commands command = new Commands();
+                    Commands command = new Commands(ConnectionString);
                     idWatch = command.InsertWatch(watch);
                 }
                 else
                 {
-                    Commands command = new Commands();
+                    Commands command = new Commands(ConnectionString);
                     idWatch = command.IDWatch(watch.Title, watch.TitleOriginal);
                 }
 
@@ -263,13 +267,13 @@ namespace Tchotchomere
                 {
                     foreach (var genre in watch.Genres)
                     {
-                        Commands command = new Commands();
+                        Commands command = new Commands(ConnectionString);
                         command.InsertGenre(genre, idWatch);
                     }
                 }
                 foreach (var download in watch.Downloads)
                 {
-                    Commands command = new Commands();
+                    Commands command = new Commands(ConnectionString);
                     int idDownload = command.InsertDownload(download);
                     command.InsertWatchDownload(idWatch, idDownload);
                 }
@@ -277,7 +281,7 @@ namespace Tchotchomere
                 {
                     foreach (var subtitle in watch.Subtitles)
                     {
-                        Commands command = new Commands();
+                        Commands command = new Commands(ConnectionString);
                         int idSubtitle = command.InsertSubtitle(subtitle);
                         command.InsertWatchSubtitle(idWatch, idSubtitle);
                     }
@@ -298,7 +302,7 @@ namespace Tchotchomere
         {
             Uri baseUriQuery = new Uri("https://api.themoviedb.org/3/search/");
             //https://api.themoviedb.org/3/search/movie
-            //api_key=3cc7aa7a8972f7e07bba853a11fbd66f
+            //api_key=<api_key>
             //&page=1&include_adult=true&query=homem%20aranha%20de%20volta%20ao%20lar&language=pt-BR
             Uri uriQuery;
             string ResultQuery;
@@ -306,7 +310,7 @@ namespace Tchotchomere
             if (watch.Type == Watch.TypeWatch.Movie)
             {
                 uriQuery = new Uri(baseUriQuery, "movie")
-                    .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f")
+                    .AddQuery("api_key", apiKey)
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
                     .AddQuery("language", "pt-BR");
@@ -337,7 +341,7 @@ namespace Tchotchomere
                         var Info = ResultsFromQuery.results[x];
                         Uri baseQueryExternalId = new Uri("https://api.themoviedb.org/3/movie/");
                         Uri uriExternalId = new Uri(baseQueryExternalId, $"{ResultsFromQuery.results[0].id}/external_ids")
-                            .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
+                            .AddQuery("api_key", apiKey);
                         string ResultId = GetResult(uriExternalId);
 
                         ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
@@ -365,7 +369,7 @@ namespace Tchotchomere
             else
             {
                 uriQuery = new Uri(baseUriQuery, "tv")
-                    .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f")
+                    .AddQuery("api_key", apiKey)
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
                     .AddQuery("language", "pt-BR");
@@ -396,21 +400,22 @@ namespace Tchotchomere
 
                         Uri baseQueryExternalId = new Uri("https://api.themoviedb.org/3/tv/");
                         Uri uriExternalId = new Uri(baseQueryExternalId, $"{ResultsFromQuery.results[0].id}/external_ids")
-            .AddQuery("api_key", "3cc7aa7a8972f7e07bba853a11fbd66f");
+            .AddQuery("api_key", apiKey);
                         string ResultId = GetResult(uriExternalId);
 
                         ExternalID.Series infoSeries = JsonConvert.DeserializeObject<ExternalID.Series>(ResultId);
                         watch.IDTheMovieDB = infoSeries.id;
                         watch.IDIMDb = infoSeries.imdb_id;
                         var genres = new List<string>();
-                        if (watch.Title.Contains("fear"))
-                        {
+                        //if (watch.Title.Contains("fear"))
+                        //{
 
-                        }
+                        //}
                         foreach (var genre in Info.genre_ids)
                         {
                             genres.Add(Genre.TVWatch[genre]);
                         }
+                        //Do not make this because take along more cicles
                         //watch.Title = (watch.Title == string.Empty) ? info.name : watch.Title;
                         watch.Title = Info.name;
                         //watch.TitleOriginal = (watch.TitleOriginal == string.Empty) ? info.original_name : watch.TitleOriginal;

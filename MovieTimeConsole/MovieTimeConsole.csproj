@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,6 +68,7 @@
     <Content Include="wwwroot\css\bootstrap-reboot.min.css" />
     <Content Include="wwwroot\css\bootstrap.css" />
     <Content Include="wwwroot\css\bootstrap.min.css" />
+    <Content Include="wwwroot\css\video-js.min.css" />
     <Content Include="wwwroot\img\img1.jpg" />
     <Content Include="wwwroot\img\img2.jpg" />
     <Content Include="wwwroot\img\img3.png" />
@@ -77,6 +79,7 @@
     <Content Include="wwwroot\js\bootstrap.js" />
     <Content Include="wwwroot\js\bootstrap.min.js" />
     <Content Include="wwwroot\js\jquery-3.4.1.js" />
+    <Content Include="wwwroot\js\video.min.js" />
     <Content Include="wwwroot\watch.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

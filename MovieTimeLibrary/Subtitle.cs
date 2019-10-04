@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Tchotchomere
+﻿namespace LibraryShared
 {
-    class Subtitle
+    public class Subtitle
     {
         public string Lang { get; set; } = string.Empty;
         public string DownloadText { get; set; } = string.Empty;

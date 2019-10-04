@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 
-namespace Tchotchomere
+namespace LibraryShared
 {
     class Connection
     {
@@ -13,6 +9,11 @@ namespace Tchotchomere
         public Connection()
         {
             conn.ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
+        }
+
+        public Connection(string ConnectionString)
+        {
+            conn.ConnectionString = ConnectionString;
         }
 
         public SqlConnection Connect()

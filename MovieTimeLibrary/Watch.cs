@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Tchotchomere
+namespace LibraryShared
 {
-    class Watch
+    public class Watch
     {
         public enum TypeWatch
         {

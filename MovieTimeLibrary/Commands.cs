@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Tchotchomere
+namespace LibraryShared
 {
-    class Commands
+    public class Commands
     {
-        Connection Connection = new Connection();
+        Connection Connection;
+        public Commands(string ConnectionString)
+        {
+            Connection = new Connection(ConnectionString);
+        }
         public int InsertWatch(Watch watch)
         {
             try
@@ -142,8 +143,6 @@ namespace Tchotchomere
         {
             try
             {
-
-
                 System.Data.SqlClient.SqlCommand sqlCommand = new System.Data.SqlClient.SqlCommand();
                 sqlCommand.CommandText = "INSERT INTO [dbo].[Watch_Download] ([idWatch] ,[idDownload]) VALUES (@idWatch,@idDownload)";
                 sqlCommand.Parameters.AddWithValue("@idWatch", idWatch.ToString());
@@ -198,8 +197,6 @@ namespace Tchotchomere
             System.Data.SqlClient.SqlCommand sqlCommand = new System.Data.SqlClient.SqlCommand();
             sqlCommand.CommandType = System.Data.CommandType.Text;
             sqlCommand.CommandText = $"SELECT COUNT(*) FROM [movietime_database].[dbo].[Watch] WHERE Title = '{Title}' AND TitleOriginal = '{TitleOriginal}'";
-            //sqlCommand.Parameters.AddWithValue("@Title", Title);
-            //sqlCommand.Parameters.AddWithValue("@TitleOriginal", TitleOriginal);
             sqlCommand.Connection = Connection.Connect();
             count = (int)sqlCommand.ExecuteScalar();
             Connection.Disconnect();
@@ -226,6 +223,99 @@ namespace Tchotchomere
             Connection.Disconnect();
             return id;
         }
+        public Watch GetWatch(int idWatch)
+        {
+            Watch watch = new Watch();
 
+            System.Data.SqlClient.SqlCommand CommandSelect1 = new System.Data.SqlClient.SqlCommand();
+            CommandSelect1.Connection = Connection.Connect();
+            CommandSelect1.CommandText = "SELECT [Title] ,[TitleOriginal] ,[Duration] ,[Synopsis] ,[IDTheMovieDB] ,[IDIMdb] ,[PosterPicture] ,[BackdropPicture] ,[Date] ,[IsMovie] FROM [movietime_database].[dbo].[Watch] " +
+                "WHERE idWatch = " + idWatch.ToString();
+            using (System.Data.SqlClient.SqlDataReader reader = CommandSelect1.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    watch.Title = reader["Title"].ToString();
+                    watch.TitleOriginal = reader["TitleOriginal"].ToString();
+                    watch.Duration = reader["Duration"].ToString();
+                    watch.Synopsis = reader["Synopsis"].ToString();
+                    watch.IDTheMovieDB = Convert.ToInt32(reader["IDTheMovieDB"]);
+                    watch.IDIMDb = reader["IDIMdb"].ToString();
+                    watch.PosterPicture = reader["PosterPicture"].ToString();
+                    watch.BackdropPicture = reader["BackdropPicture"].ToString();
+                    watch.Date = reader["Date"].ToString();
+                    watch.Type = GetType((bool)reader["IsMovie"]);
+                }
+                else
+                {
+                    throw new ArgumentNullException("Nada foi encontrado");
+                }
+            }
+            Connection.Disconnect();
+
+            System.Data.SqlClient.SqlCommand CommandSelect2 = new System.Data.SqlClient.SqlCommand();
+            CommandSelect2.Connection = Connection.Connect();
+            CommandSelect2.CommandText = "SELECT [Genre] FROM [movietime_database].[dbo].[Genre]" +
+                "WHERE idWatch = " + idWatch.ToString();
+            var listGenre = new System.Collections.Generic.List<string>();
+            using (System.Data.SqlClient.SqlDataReader reader = CommandSelect2.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    listGenre.Add(reader["Genre"].ToString());
+                }
+            }
+            watch.Genres = listGenre.ToArray();
+            Connection.Disconnect();
+
+            System.Data.SqlClient.SqlCommand CommandSelect3 = new System.Data.SqlClient.SqlCommand();
+            CommandSelect3.Connection = Connection.Connect();
+            CommandSelect3.CommandText = "SELECT [Download].[Quality] ,[Download].[Audio] ,[Download].[Format] ,[Download].[Size] ,[Download].[SeasonTV] ,[Download].[EpisodeTV] ,[Download].[DownloadText] FROM [movietime_database].[dbo].[Watch_Download] " +
+                "INNER JOIN [Download] ON [Watch_Download].[idDownload] = [Download].[idDownload] " +
+                "WHERE idWatch = " + idWatch.ToString();
+            using (System.Data.SqlClient.SqlDataReader reader = CommandSelect3.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    DownloadData downloadData = new DownloadData();
+                    downloadData.Audio = reader["Audio"].ToString();
+                    downloadData.Format = reader["Format"].ToString();
+                    downloadData.Size = reader["Size"].ToString();
+                    downloadData.SeasonTV = (int)reader["SeasonTV"];
+                    downloadData.EpisodeTV = reader["EpisodeTV"].ToString();
+                    downloadData.DownloadText = reader["DownloadText"].ToString();
+                    watch.Downloads.Add(downloadData);
+                }
+            }
+            Connection.Disconnect();
+
+            return watch;
+        }
+        public SearchWatch[] SearchWatch(string query)
+        {
+            System.Collections.Generic.List<SearchWatch> searchWatches = new System.Collections.Generic.List<SearchWatch>();
+            System.Data.SqlClient.SqlCommand sqlCommand = new System.Data.SqlClient.SqlCommand();
+            sqlCommand.CommandType = System.Data.CommandType.Text;
+            sqlCommand.CommandText = $"SELECT idWatch, Title, PosterPicture FROM [movietime_database].[dbo].[Watch] " +
+                $"WHERE Title like '%{query}%' OR TitleOriginal like '%{query}%'";
+            sqlCommand.Connection = Connection.Connect();
+            using (System.Data.SqlClient.SqlDataReader reader = sqlCommand.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var search = new SearchWatch();
+                    search.ID = Convert.ToInt32(reader["idWatch"].ToString());
+                    search.Title = reader["Title"].ToString();
+                    search.PosterPicture = reader["PosterPicture"].ToString();
+                    searchWatches.Add(search);
+                }
+            }
+            Connection.Disconnect();
+            return searchWatches.ToArray();
+        }
+        private Watch.TypeWatch GetType(bool IsMovie)
+        {
+            return (IsMovie) ? Watch.TypeWatch.Series : Watch.TypeWatch.Movie;
+        }
     }
 }
