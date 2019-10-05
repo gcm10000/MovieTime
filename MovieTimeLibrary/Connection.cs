@@ -2,14 +2,9 @@
 
 namespace LibraryShared
 {
-    class Connection
+    public class Connection
     {
         SqlConnection conn = new SqlConnection();
-
-        public Connection()
-        {
-            conn.ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
-        }
 
         public Connection(string ConnectionString)
         {

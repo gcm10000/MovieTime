@@ -18,7 +18,9 @@ namespace Tchotchomere
     {
         //API KEY THE MOVIE DB (v3 auth): 3cc7aa7a8972f7e07bba853a11fbd66f
         const string url = "https://teutorrent.com/";
-        const string ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
+        //const string ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
+        //Server=sql.freeasphost.net\MSSQL2016;Database=movietime_database;uid=movietime;pwd=D8XCkpZhSWUGeCM;
+        const string ConnectionString = @"Server=sql.freeasphost.net\MSSQL2016;Database=movietime_database;uid=movietime;pwd=D8XCkpZhSWUGeCM;";
         const string apiKey = "3cc7aa7a8972f7e07bba853a11fbd66f";
         static string path = Path.Combine(Environment.CurrentDirectory, "urls");
         static string PathNewUrls = Path.Combine(path, "newurls.json");
@@ -31,6 +33,8 @@ namespace Tchotchomere
 
         static void Main(string[] args)
         {
+            Connection connection = new Connection(ConnectionString);
+            connection.Connect();
             //using (WebClient webClient = new WebClient())
             //{
             //    webClient.Encoding = System.Text.Encoding.UTF8;

@@ -16,14 +16,17 @@ namespace MovieTimeWindowsForms
         bool isSetMedia;
         public Player(Watch watch)
         {
+            //this.vlcControl.VlcLibDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64")); ;
+            //this.vlcControl.VlcMediaplayerOptions = new[] { "-vv" };
+
             this.watch = watch;
             this.Text = watch.Title + " - MovieTime";
 
             InitializeComponent();
-
+            vlcControl.SetMedia(new Uri("http://techslides.com/demos/samples/sample.mkv"), new string[] { });
             if (watch.Type == Watch.TypeWatch.Movie)
             {
-                StartClientTorrent(watch.Downloads[0].DownloadText);
+                //StartClientTorrent(watch.Downloads[0].DownloadText);
             }
             else
             {
@@ -58,6 +61,7 @@ namespace MovieTimeWindowsForms
                 this.url = url;
                 vlcControl.SetMedia(new Uri(url), new string[] { });
                 isSetMedia = true;
+                timer.Start();
                 vlcControl.Play();
             }
 
@@ -76,10 +80,12 @@ namespace MovieTimeWindowsForms
             {
                 Console.Error.Write("An error occurred");
                 playFinished = true;
+                timer.Stop();
             };
 
             vlcControl.EndReached += (sender, e) => {
                 playFinished = true;
+                timer.Stop();
             };
 
             vlcControl.Playing += (sender, e) =>
@@ -92,6 +98,48 @@ namespace MovieTimeWindowsForms
             this.vlcControl.Play();
             //Console.WriteLine("{0}) {1}.", this.vlcControl1.Audio.Tracks.Current.ID, this.vlcControl1.Audio.Tracks.Current.Name);
 
+        }
+
+        private void BtnStop_Click(object sender, EventArgs e)
+        {
+            if (!playFinished)
+            {
+                vlcControl.Stop();
+                timer.Stop();
+
+            }
+        }
+
+        private void BtnPlay_Click(object sender, EventArgs e)
+        {
+            if (vlcControl.IsPlaying)
+            {
+                vlcControl.Pause();
+                timer.Stop();
+            }
+            else
+            {
+                timer.Start();
+                vlcControl.Play();
+            }
+        }
+        private void SeekBar_Scroll(object sender, EventArgs e)
+        {
+            //seekBar.Value
+            //if (seekBar.Value % seekBar.SmallChange != 0)
+            vlcControl.Position = seekBar.Value / 100;
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (vlcControl.Position == -1)
+            {
+                seekBar.Value = 0;
+            }
+            else
+            {
+                seekBar.Value = (int)Math.Ceiling(vlcControl.Position * 100);
+            }
         }
     }
 }
