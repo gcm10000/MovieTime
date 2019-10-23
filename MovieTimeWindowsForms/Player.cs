@@ -9,24 +9,23 @@ namespace MovieTimeWindowsForms
 {
     public partial class Player : Form
     {
-        Watch watch;
         bool playFinished;
-        string peerflix = Path.Combine(Environment.CurrentDirectory, "peerflix.exe");
-        string url;
+        readonly string peerflix = Path.Combine(Environment.CurrentDirectory, "peerflix.exe");
         bool isSetMedia;
         public Player(Watch watch)
         {
             //this.vlcControl.VlcLibDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64")); ;
             //this.vlcControl.VlcMediaplayerOptions = new[] { "-vv" };
 
-            this.watch = watch;
             this.Text = watch.Title + " - MovieTime";
 
             InitializeComponent();
-            vlcControl.SetMedia(new Uri("http://techslides.com/demos/samples/sample.mkv"), new string[] { });
+            //vlcControl.SetMedia(<MEDIA>), new string[] { });
+
+            //Check movie or TV series
             if (watch.Type == Watch.TypeWatch.Movie)
             {
-                //StartClientTorrent(watch.Downloads[0].DownloadText);
+                StartClientTorrent(watch.Downloads[0].DownloadText);
             }
             else
             {
@@ -42,13 +41,13 @@ namespace MovieTimeWindowsForms
             startInfo.UseShellExecute = false;
 
             process.StartInfo = startInfo;
+            //Configuration to process async
             process.OutputDataReceived += Process_DataReceived;
             process.ErrorDataReceived += Process_DataReceived;
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
         }
-
         private void Process_DataReceived(object sender, DataReceivedEventArgs e)
         {
             String result = Regex.Replace(e.Data, @"\u001b\[[^m]*m", String.Empty);
@@ -58,11 +57,9 @@ namespace MovieTimeWindowsForms
             {
                 //open vlc and enter http://192.168.1.4:8888/ as the network address
                 String url = result.Replace("open vlc and enter ", "").Replace(" as the network address", "").Trim();
-                this.url = url;
                 vlcControl.SetMedia(new Uri(url), new string[] { });
                 isSetMedia = true;
-                timer.Start();
-                vlcControl.Play();
+                Play();
             }
 
         }
@@ -99,29 +96,37 @@ namespace MovieTimeWindowsForms
             //Console.WriteLine("{0}) {1}.", this.vlcControl1.Audio.Tracks.Current.ID, this.vlcControl1.Audio.Tracks.Current.Name);
 
         }
-
         private void BtnStop_Click(object sender, EventArgs e)
         {
             if (!playFinished)
             {
                 vlcControl.Stop();
                 timer.Stop();
-
+                timer.Enabled = false;
             }
         }
-
         private void BtnPlay_Click(object sender, EventArgs e)
         {
             if (vlcControl.IsPlaying)
             {
-                vlcControl.Pause();
-                timer.Stop();
+                Pause();
             }
             else
             {
-                timer.Start();
-                vlcControl.Play();
+                Play();
             }
+        }
+        private void Play()
+        {
+            timer.Enabled = true;
+            timer.Start();
+            vlcControl.Play();
+        }
+        private void Pause()
+        {
+            vlcControl.Pause();
+            timer.Stop();
+            timer.Enabled = false;
         }
         private void SeekBar_Scroll(object sender, EventArgs e)
         {
@@ -129,7 +134,6 @@ namespace MovieTimeWindowsForms
             //if (seekBar.Value % seekBar.SmallChange != 0)
             vlcControl.Position = seekBar.Value / 100;
         }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (vlcControl.Position == -1)

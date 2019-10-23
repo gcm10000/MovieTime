@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryShared;
+using System.Threading;
 
 namespace MovieTimeWindowsForms
 {
@@ -22,24 +23,33 @@ namespace MovieTimeWindowsForms
         {
             InitializeComponent();
         }
-
         private void BtnSearch_Click(object sender, EventArgs e)
         {
-            listBoxSearch.Items.Clear();
-            var search = txtSearch.Text;
-            var result = GetResult("http://localhost:54691/get/search?query=" + search);
-            watches = JsonConvert.DeserializeObject<List<SearchWatch>>(result);
-
-            foreach (var item in watches)
+            new Thread(() =>
             {
-                listBoxSearch.Items.Add(item.Title);
-            }
+                this.Invoke(new MethodInvoker(() =>
+                {
+                    listBoxSearch.Items.Clear();
+
+                }));
+                var search = txtSearch.Text;
+                var result = GetResult("http://movietime-001-site1.itempurl.com/get/search?query=" + search);
+                watches = JsonConvert.DeserializeObject<List<SearchWatch>>(result);
+
+                this.Invoke(new MethodInvoker(() =>
+                {
+                    foreach (var item in watches)
+                    {
+                        listBoxSearch.Items.Add(item.Title);
+                    }
+                }));
+            })
+            { IsBackground = true}.Start();
 
         }
-        public static string GetResult(string url)
+        private string GetResult(string url)
         {
             string result = string.Empty;
-
             using (var clientAPI = new HttpClient())
             {
                 ServicePointManager.Expect100Continue = true;
@@ -51,6 +61,17 @@ namespace MovieTimeWindowsForms
                 request.KeepAlive = false;
                 request.UserAgent = @"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
                 request.Method = "GET";
+                //using (var responseAsync = await request.GetResponseAsync())
+                //{
+                //    HttpWebResponse response = (HttpWebResponse) responseAsync;
+                //    Stream dataStream = response.GetResponseStream();
+                //    StreamReader reader = new StreamReader(dataStream);
+                //    result = await reader.ReadToEndAsync();
+
+                //    reader.Close();
+                //    dataStream.Close();
+                //}
+
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     Stream dataStream = response.GetResponseStream();
@@ -61,21 +82,35 @@ namespace MovieTimeWindowsForms
                     dataStream.Close();
                 }
             }
-
             return result;
         }
-
-        private void ListBoxSearch_SelectedIndexChanged(object sender, EventArgs e)
+        private void ListBoxSearch_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (listBoxSearch.Items.Count > 0)
+            int index = this.listBoxSearch.IndexFromPoint(e.Location);
+            if (index != System.Windows.Forms.ListBox.NoMatches)
             {
-                var index = listBoxSearch.SelectedIndex;
-                var id = watches.Find(x => x.Title == listBoxSearch.Items[index].ToString()).ID;
-                var result = GetResult("http://localhost:54691/get/information?id=" + id.ToString());
-                var watch = JsonConvert.DeserializeObject<Watch>(result);
-                Player player = new Player(watch);
-                player.ShowDialog();
+                new Thread(() =>
+                {
+                    var id = watches.Find(x => x.Title == listBoxSearch.Items[index].ToString()).ID;
+                    var result = GetResult("http://movietime-001-site1.itempurl.com/get/information?id=" + id.ToString());
+                    var watch = JsonConvert.DeserializeObject<Watch>(result);
+                    this.Invoke(new MethodInvoker(() =>
+                    {
+                        Player player = new Player(watch);
+                        player.ShowDialog();
+                    }));
+                })
+                { IsBackground = true}.Start();
+            }
+        }
 
+        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                BtnSearch_Click(this, new EventArgs());
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
     }

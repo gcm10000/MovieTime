@@ -40,7 +40,7 @@
             this.listBoxSearch.Name = "listBoxSearch";
             this.listBoxSearch.Size = new System.Drawing.Size(572, 355);
             this.listBoxSearch.TabIndex = 0;
-            this.listBoxSearch.SelectedIndexChanged += new System.EventHandler(this.ListBoxSearch_SelectedIndexChanged);
+            this.listBoxSearch.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ListBoxSearch_MouseDoubleClick);
             // 
             // txtSearch
             // 
@@ -48,6 +48,7 @@
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(303, 20);
             this.txtSearch.TabIndex = 1;
+            this.txtSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtSearch_KeyDown);
             // 
             // btnSearch
             // 

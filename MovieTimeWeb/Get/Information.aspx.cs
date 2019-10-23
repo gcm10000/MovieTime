@@ -13,7 +13,6 @@ namespace MovieTimeWeb.Get
 {
     public partial class Information : System.Web.UI.Page
     {
-        const string ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
 
         //GET ID
         protected void Page_Load(object sender, EventArgs e)
@@ -23,9 +22,11 @@ namespace MovieTimeWeb.Get
             {
                 if (int.TryParse(Request.QueryString["id"], out int id))
                 {
+                    var ConnectionString = System.Configuration.ConfigurationManager.
+    ConnectionStrings["connection"].ConnectionString;
                     Commands cmd = new Commands(ConnectionString);
                     LibraryShared.Watch watch = cmd.GetWatch(id);
-                    string json = JsonConvert.SerializeObject(watch);
+                    string json = JsonConvert.SerializeObject(watch, Formatting.Indented);
                     Response.Write(json);
 
                 }
@@ -36,14 +37,17 @@ namespace MovieTimeWeb.Get
                     Response.Write(json);
 
                 }
-                //var js = new JavaScriptSerializer();
-                //var arraystr = new string[] { "A", "B", "C" };
-                //string myJson = js.Serialize(arraystr);,
             }
             catch (ArgumentNullException)
             {
                 Response.StatusCode = 422;
                 string json = JsonConvert.SerializeObject("Does not exists record with ID requested.");
+                Response.Write(json);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 422;
+                string json = JsonConvert.SerializeObject($"Error: {ex.Message}.");
                 Response.Write(json);
             }
 

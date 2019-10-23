@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using LibraryShared;
+using Newtonsoft.Json.Linq;
 
 
 //https://openlink.click/feroz/?b=d3d3LnRlY2hub2xvZ3ktdW5pdmVyc2UuY29t&url=aHR0cHM6Ly9ueWFhLnNpL2Rvd25sb2FkLzExNTU4OTYudG9ycmVudA==&user=136870344-8&type=2&vez=2&anali=
@@ -16,11 +17,12 @@ namespace Tchotchomere
 {
     class Program
     {
+
         //API KEY THE MOVIE DB (v3 auth): 3cc7aa7a8972f7e07bba853a11fbd66f
         const string url = "https://teutorrent.com/";
         //const string ConnectionString = @"Data Source=GABRIEL-PC\SQLEXPRESS;Initial Catalog=movietime_database;Integrated Security=True";
         //Server=sql.freeasphost.net\MSSQL2016;Database=movietime_database;uid=movietime;pwd=D8XCkpZhSWUGeCM;
-        const string ConnectionString = @"Server=sql.freeasphost.net\MSSQL2016;Database=movietime_database;uid=movietime;pwd=D8XCkpZhSWUGeCM;";
+        const string ConnectionString = @"Data Source=SQL5042.site4now.net;Initial Catalog=DB_A4EA9F_movietime;User Id=DB_A4EA9F_movietime_admin;Password=D8XCkpZhSWUGeCM;";
         const string apiKey = "3cc7aa7a8972f7e07bba853a11fbd66f";
         static string path = Path.Combine(Environment.CurrentDirectory, "urls");
         static string PathNewUrls = Path.Combine(path, "newurls.json");
@@ -29,12 +31,12 @@ namespace Tchotchomere
 
         static List<string> NewUrls = new List<string>();
         static List<string> OldUrls = new List<string>();
-
+        static int AddDb = 0;
 
         static void Main(string[] args)
         {
-            Connection connection = new Connection(ConnectionString);
-            connection.Connect();
+            //Connection connection = new Connection(ConnectionString);
+            //connection.Connect();
             //using (WebClient webClient = new WebClient())
             //{
             //    webClient.Encoding = System.Text.Encoding.UTF8;
@@ -46,14 +48,6 @@ namespace Tchotchomere
             //    GetInfo(content, url);
             //}
 
-            //int x = Helper.LevenshteinDistance.Compute("Annabelle 3: De Volta", "Annabelle 3: De Volta Para Casa");
-
-            //Watch watch = new Watch();
-            //watch.Title = "FEAR THE WALKING DEAD";
-            //watch.Type = Watch.TypeWatch.Series;
-
-            //GetInfoOnTheMovieDB(watch);
-
             CreatePaths();
             NewUrls.Add(url);
             OldUrls.Add(url);
@@ -61,7 +55,8 @@ namespace Tchotchomere
             //do first time, so save links on List and cycle repeat accessing all urls of website
             do
             {
-                string title = string.Format("Total requested: {0}, Total Found: {1}, Url requested: {2}", OldUrls.Count, NewUrls.Count, NewUrls[0]);
+                string title = string.Format("Total requested: {0}, Total Found: {1}, Added: {2}, Url requested: {3}", OldUrls.Count, NewUrls.Count, AddDb, NewUrls[0]);
+                Console.Clear();
                 Console.WriteLine(title);
                 Console.Title = title;
 
@@ -78,18 +73,27 @@ namespace Tchotchomere
         }
         static void AccessingUrl(string link)
         {
-            using (WebClient webClient = new WebClient())
+            try
             {
-                webClient.Encoding = System.Text.Encoding.UTF8;
-                string content = webClient.DownloadString(link);
-                List<string> urls = LinkExtractor.ExtractUrl(content, link);
-                foreach (var url in urls.ToList())
+                using (WebClient webClient = new WebClient())
                 {
-                    if (!NewUrls.Contains(url) && (!OldUrls.Contains(url)))
-                        NewUrls.Add(url);
-                    Console.WriteLine(url);
+                    webClient.Encoding = System.Text.Encoding.UTF8;
+                    string content = webClient.DownloadString(link);
+                    List<string> urls = LinkExtractor.ExtractUrl(content, link);
+                    foreach (var url in urls.ToList())
+                    {
+                        if (!NewUrls.Contains(url) && (!OldUrls.Contains(url)))
+                            NewUrls.Add(url);
+                        //Console.WriteLine(url);
+                    }
+                    GetInfoOnPage(content, link);
                 }
-                GetInfoOnPage(content, link);
+            }
+            catch (System.Net.WebException ex)
+            {
+                Console.WriteLine("Error: " + ex.Response);
+                Console.WriteLine("Try again...");
+                AccessingUrl(link);
             }
         }
         static void GetInfoOnPage(string html, string url)
@@ -251,44 +255,10 @@ namespace Tchotchomere
                     Console.WriteLine(" Magnet: " + info.DownloadText);
                 }
 
-                //Insert DB here
-                Commands cmd = new Commands(ConnectionString);
-                int count = cmd.CountWatch(watch.Title, watch.TitleOriginal);
-                int idWatch;
-                if (count == 0)
+                if (!CheckDB(watch))
                 {
-                    Commands command = new Commands(ConnectionString);
-                    idWatch = command.InsertWatch(watch);
-                }
-                else
-                {
-                    Commands command = new Commands(ConnectionString);
-                    idWatch = command.IDWatch(watch.Title, watch.TitleOriginal);
-                }
-
-
-                if (watch.Genres.Length > 0)
-                {
-                    foreach (var genre in watch.Genres)
-                    {
-                        Commands command = new Commands(ConnectionString);
-                        command.InsertGenre(genre, idWatch);
-                    }
-                }
-                foreach (var download in watch.Downloads)
-                {
-                    Commands command = new Commands(ConnectionString);
-                    int idDownload = command.InsertDownload(download);
-                    command.InsertWatchDownload(idWatch, idDownload);
-                }
-                if (watch.Subtitles.Count > 0)
-                {
-                    foreach (var subtitle in watch.Subtitles)
-                    {
-                        Commands command = new Commands(ConnectionString);
-                        int idSubtitle = command.InsertSubtitle(subtitle);
-                        command.InsertWatchSubtitle(idWatch, idSubtitle);
-                    }
+                    InsertDB(watch);
+                    AddDb++;
                 }
             }
             catch (Exception ex)
@@ -301,7 +271,53 @@ namespace Tchotchomere
             }
 
         }
+        static bool CheckDB(Watch watch)
+        {
+            Commands commands = new Commands(ConnectionString);
+            return commands.CountWatch(watch.Title, watch.TitleOriginal) > 0;
+        }
+        static void InsertDB(Watch watch)
+        {
+            //Insert DB here
+            Commands cmd = new Commands(ConnectionString);
+            int count = cmd.CountWatch(watch.Title, watch.TitleOriginal);
+            int idWatch;
+            if (count == 0)
+            {
+                Commands command = new Commands(ConnectionString);
+                idWatch = command.InsertWatch(watch);
+            }
+            else
+            {
+                Commands command = new Commands(ConnectionString);
+                idWatch = command.IDWatch(watch.Title, watch.TitleOriginal);
+            }
 
+
+            if (watch.Genres.Length > 0)
+            {
+                foreach (var genre in watch.Genres)
+                {
+                    Commands command = new Commands(ConnectionString);
+                    command.InsertGenre(genre, idWatch);
+                }
+            }
+            foreach (var download in watch.Downloads)
+            {
+                Commands command = new Commands(ConnectionString);
+                int idDownload = command.InsertDownload(download);
+                command.InsertWatchDownload(idWatch, idDownload);
+            }
+            if (watch.Subtitles.Count > 0)
+            {
+                foreach (var subtitle in watch.Subtitles)
+                {
+                    Commands command = new Commands(ConnectionString);
+                    int idSubtitle = command.InsertSubtitle(subtitle);
+                    command.InsertWatchSubtitle(idWatch, idSubtitle);
+                }
+            }
+        }
         static Watch GetInfoOnTheMovieDB(Watch watch)
         {
             Uri baseUriQuery = new Uri("https://api.themoviedb.org/3/search/");
@@ -348,9 +364,12 @@ namespace Tchotchomere
                             .AddQuery("api_key", apiKey);
                         string ResultId = GetResult(uriExternalId);
 
-                        ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
-                        watch.IDTheMovieDB = infoMovie.id;
-                        watch.IDIMDb = infoMovie.imdb_id;
+                        //ExternalID.Movie infoMovie = JsonConvert.DeserializeObject<ExternalID.Movie>(ResultId);
+                        var data = (JObject)JsonConvert.DeserializeObject(ResultId);
+                        if (data["id"] != null)
+                            watch.IDTheMovieDB = (int)data["id"];
+                        if (data["imdb_id"] != null)
+                            watch.IDIMDb = (string)data["imdb_id"];
 
                         var genres = new List<string>();
                         foreach (var genre in Info.genre_ids)
@@ -435,7 +454,6 @@ namespace Tchotchomere
             }
             throw new NullReferenceException("Nada foi encontrado.");
         }
-
         static int[] GetMinNumber(int[] numbers)
         {
             
@@ -474,7 +492,6 @@ namespace Tchotchomere
                     result = reader.ReadToEnd();
 
                     reader.Close();
-                    dataStream.Close();
                 }
             }
 
@@ -558,5 +575,4 @@ namespace Tchotchomere
             return list;
         }
     }
-
 }

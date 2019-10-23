@@ -17,7 +17,9 @@ namespace MovieTimeWeb.Get
             try
             {
                 var query = Request.QueryString["query"];
-                Commands cmd = new Commands(Statics.ConnectionString);
+                var ConnectionString = System.Configuration.ConfigurationManager.
+ConnectionStrings["connection"].ConnectionString;
+                Commands cmd = new Commands(ConnectionString);
                 var search = cmd.SearchWatch(query);
                 string json = JsonConvert.SerializeObject(search);
                 Response.StatusCode = 200;
