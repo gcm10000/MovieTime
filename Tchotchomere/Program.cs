@@ -35,41 +35,40 @@ namespace Tchotchomere
 
         static void Main(string[] args)
         {
-            //Connection connection = new Connection(ConnectionString);
-            //connection.Connect();
-            //using (WebClient webClient = new WebClient())
-            //{
-            //    webClient.Encoding = System.Text.Encoding.UTF8;
-            //    //var url = "https://teutorrent.com/chernobyl-1o-temporada-2019-blu-ray-720p-download-torrent-dub-e-leg/";
-            //    //var url = "https://teutorrent.com/ballers-4a-temporada-2018-blu-ray-720p-download-torrent-dub-e-leg/";
-            //    //var url = "https://teutorrent.com/vingadores-4-ultimato-2019-torrent-hd-720p-dublado-legendado-download/";
-            //    var url = "https://teutorrent.com/";
-            //    string content = webClient.DownloadString(url);
-            //    GetInfo(content, url);
-            //}
-
             CreatePaths();
             NewUrls.Add(url);
             OldUrls.Add(url);
             //do while...
             //do first time, so save links on List and cycle repeat accessing all urls of website
-            do
-            {
-                string title = string.Format("Total requested: {0}, Total Found: {1}, Added: {2}, Url requested: {3}", OldUrls.Count, NewUrls.Count, AddDb, NewUrls[0]);
-                Console.Clear();
-                Console.WriteLine(title);
-                Console.Title = title;
 
-                AccessingUrl(NewUrls[0]);
-                Console.WriteLine();
-                OldUrls.Add(NewUrls[0]);
-                NewUrls.Remove(NewUrls[0]);
+            BotClient botClient = new BotClient("https://www.bludv.tv/", true);
+            botClient.ResultEvent += BotClient_ResultEvent;
+            botClient.Start();
 
-                ReleaseData(PathNewUrls, NewUrls);
-                ReleaseData(PathOldUrls, OldUrls);
+            //do
+            //{
+            //    string title = string.Format("Total requested: {0}, Total Found: {1}, Added: {2}, Url requested: {3}", OldUrls.Count, NewUrls.Count, AddDb, NewUrls[0]);
+            //    Console.Clear();
+            //    Console.WriteLine(title);
+            //    Console.Title = title;
 
-            } while (NewUrls.Count > 0);
+            //    AccessingUrl(NewUrls[0]);
+            //    Console.WriteLine();
+            //    OldUrls.Add(NewUrls[0]);
+            //    NewUrls.Remove(NewUrls[0]);
+
+            //    ReleaseData(PathNewUrls, NewUrls);
+            //    ReleaseData(PathOldUrls, OldUrls);
+
+            //} while (NewUrls.Count > 0);
             Console.ReadKey();
+        }
+        private static void BotClient_ResultEvent(EventResult Result)
+        {
+            if (Result.Exception != null)
+                Console.WriteLine(Result.Exception.Message);
+            Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.ResultUrl}";
+            Console.WriteLine(Result.ResultUrl);
         }
         static void AccessingUrl(string link)
         {
@@ -95,6 +94,13 @@ namespace Tchotchomere
                 Console.WriteLine("Try again...");
                 AccessingUrl(link);
             }
+        }
+        static void Base64Decode(string base64Encoded)
+        {
+            string base64Decoded;
+            byte[] data = System.Convert.FromBase64String(base64Encoded);
+            base64Decoded = System.Text.ASCIIEncoding.ASCII.GetString(data);
+            Console.Write(base64Decoded);
         }
         static void GetInfoOnPage(string html, string url)
         {
@@ -554,25 +560,36 @@ namespace Tchotchomere
             return list;
         }
 
-        public static List<string> ExtractUrl(string html, string url)
+        public static List<string> ExtractUrl(string html, string host)
         {
             List<string> list = new List<string>();
-            Uri uriOri = new Uri(url);
+            Uri uriOri = new Uri(host);
 
-            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|\\s|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
             if (regex.IsMatch(html))
             {
                 foreach (Match match in regex.Matches(html))
                 {
-                    Uri uri = new Uri(match.Groups[1].Value);
-                    if ((uri.Host == uriOri.Host) && (!uri.LocalPath.EndsWith(".css")) && (!uri.LocalPath.EndsWith(".png")) && (!uri.Query.Contains("?amp")) && (uri.Fragment.Equals(string.Empty)))
-                    {
-                        list.Add(match.Groups[1].Value);
+                    if (IsValidURI(match.Groups[1].Value))
+                    {                    
+                        Uri uri = new Uri(match.Groups[1].Value);
+                        if ((uri.Host == uriOri.Host) && (!uri.LocalPath.EndsWith(".css")) && (!uri.LocalPath.EndsWith(".png")) && (!uri.Query.Contains("?amp")) && (uri.Fragment.Equals(string.Empty)))
+                        {
+                            list.Add(match.Groups[1].Value);
+                        }
                     }
                 }
             }
-
             return list;
+        }
+        public static bool IsValidURI(string uri)
+        {
+            if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+                return false;
+            Uri tmp;
+            if (!Uri.TryCreate(uri, UriKind.Absolute, out tmp))
+                return false;
+            return tmp.Scheme == Uri.UriSchemeHttp || tmp.Scheme == Uri.UriSchemeHttps;
         }
     }
 }
