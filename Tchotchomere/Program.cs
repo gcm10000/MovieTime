@@ -33,6 +33,7 @@ namespace Tchotchomere
         static List<string> OldUrls = new List<string>();
         static int AddDb = 0;
 
+        static BotClient botClient;
         static void Main(string[] args)
         {
             CreatePaths();
@@ -41,7 +42,7 @@ namespace Tchotchomere
             //do while...
             //do first time, so save links on List and cycle repeat accessing all urls of website
 
-            BotClient botClient = new BotClient("https://www.bludv.tv/", true);
+            botClient = new BotClient("https://www.bludv.tv/", true);
             botClient.ResultEvent += BotClient_ResultEvent;
             botClient.Start();
 
@@ -66,9 +67,17 @@ namespace Tchotchomere
         private static void BotClient_ResultEvent(EventResult Result)
         {
             if (Result.Exception != null)
+            {
                 Console.WriteLine(Result.Exception.Message);
+                return;
+            }
             Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.ResultUrl}";
+            var listMagnet = Result.TotalLinks.Where(x => new Uri(x).Scheme == "magnet");
             Console.WriteLine(Result.ResultUrl);
+            foreach (var item in listMagnet)
+            {
+                Console.WriteLine(item);
+            }
         }
         static void AccessingUrl(string link)
         {
@@ -78,7 +87,7 @@ namespace Tchotchomere
                 {
                     webClient.Encoding = System.Text.Encoding.UTF8;
                     string content = webClient.DownloadString(link);
-                    List<string> urls = LinkExtractor.ExtractUrl(content, link);
+                    List<string> urls = LinkExtractor.ExtractUrlSameHost(content, link);
                     foreach (var url in urls.ToList())
                     {
                         if (!NewUrls.Contains(url) && (!OldUrls.Contains(url)))
@@ -544,15 +553,19 @@ namespace Tchotchomere
         {
             List<string> list = new List<string>();
 
-            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|\\s|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
             if (regex.IsMatch(html))
             {
-                foreach (Match match in regex.Matches(html))
+                var matches = regex.Matches(html);
+                foreach (Match match in matches)
                 {
-                    Uri uri = new Uri(match.Groups[1].Value);
-                    if (match.Groups[1].Value.Contains("magnet:?"))
+                    if (IsValidURI(match.Groups[1].Value))
                     {
-                        list.Add(match.Groups[1].Value);
+                        Uri uri = new Uri(match.Groups[1].Value);
+                        if (uri.Scheme == "magnet")
+                        {
+                            list.Add(match.Groups[1].Value);
+                        }
                     }
                 }
             }
@@ -560,7 +573,28 @@ namespace Tchotchomere
             return list;
         }
 
-        public static List<string> ExtractUrl(string html, string host)
+        public static List<string> ExtractUrl(string html)
+        {
+            List<string> list = new List<string>();
+
+            Regex regex = new Regex("<a.?(?:href)=[\"|']?(.*?)[\"|'|\\s|>]+", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            if (regex.IsMatch(html))
+            {
+                foreach (Match match in regex.Matches(html))
+                {
+                    if (IsValidURI(match.Groups[1].Value))
+                    {                    
+                        Uri uri = new Uri(match.Groups[1].Value);
+                        if ((!uri.LocalPath.EndsWith(".css")) && (!uri.LocalPath.EndsWith(".png")) && (!uri.Query.Contains("?amp")) && (uri.Fragment.Equals(string.Empty)))
+                        {
+                            list.Add(match.Groups[1].Value);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+        public static List<string> ExtractUrlSameHost(string html, string host)
         {
             List<string> list = new List<string>();
             Uri uriOri = new Uri(host);
@@ -589,7 +623,7 @@ namespace Tchotchomere
             Uri tmp;
             if (!Uri.TryCreate(uri, UriKind.Absolute, out tmp))
                 return false;
-            return tmp.Scheme == Uri.UriSchemeHttp || tmp.Scheme == Uri.UriSchemeHttps;
+            return tmp.Scheme == Uri.UriSchemeHttp || tmp.Scheme == Uri.UriSchemeHttps || tmp.Scheme.ToLower() == "magnet";
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Tchotchomere
 {
     class BotClient
     {
-        private Uri Host;
+        public Uri Host { private set; get; }
         private List<string> NewUrls = new List<string>();
         private List<string> OldUrls = new List<string>();
         private bool CheckAllWebSite = false;
@@ -50,8 +50,11 @@ namespace Tchotchomere
                         {
                             if ((NewUrls.Count == 0) || ((NewUrls.Contains(address.ToString())) && (!OldUrls.Contains(address.ToString()))))
                                 OldUrls.Add(address.ToString());
-                            List<string> urls = LinkExtractor.ExtractUrl(e.Result, address.ToString());
-                            foreach (var url in urls.ToList())
+                            List<string> urls = LinkExtractor.ExtractUrl(e.Result);
+                      
+                            var urlsSameSite = urls.Where(x => Host.IsBaseOf(new Uri(x)));
+
+                            foreach (var url in urlsSameSite.ToList())
                             {
                                 string strUrl = url;
                                 if (!strUrl.EndsWith("/"))
@@ -66,7 +69,7 @@ namespace Tchotchomere
                                 }
                             }
                             NewUrls.Remove(NewUrls[0]);
-                            ResultEvent.Invoke(new EventResult(address.ToString(), NewUrls, OldUrls));
+                            ResultEvent.Invoke(new EventResult(address.ToString(), urls, NewUrls, OldUrls));
                             if (NewUrls.Count > 0)
                                 AccessingWithCheck(new Uri(NewUrls[0]));
                         }
@@ -92,7 +95,7 @@ namespace Tchotchomere
                         if (e.Error == null)
                         {
                             OldUrls.Add(address.ToString());
-                            List<string> urls = LinkExtractor.ExtractUrl(e.Result, address.ToString());
+                            List<string> urls = LinkExtractor.ExtractUrlSameHost(e.Result, address.ToString());
                             foreach (var url in urls.ToList())
                             {
                                 string strUrl = url;
@@ -116,11 +119,13 @@ namespace Tchotchomere
     {
         public string ResultUrl { get; set; }
         public ICollection<string> NewUrls { get; set; }
+        public ICollection<string> TotalLinks { get; set; }
         public ICollection<string> OldUrls { get; set; }
         public Exception Exception { get; set; }
-        public EventResult(string ResultUrl, ICollection<string> NewUrls, ICollection<string> OldUrls)
+        public EventResult(string ResultUrl, ICollection<string> TotalLinks, ICollection<string> NewUrls, ICollection<string> OldUrls)
         {
             this.ResultUrl = ResultUrl;
+            this.TotalLinks = TotalLinks;
             this.NewUrls = NewUrls;
             this.OldUrls = OldUrls;
         }
