@@ -28,6 +28,7 @@ namespace Tchotchomere
         static string PathNewUrls = Path.Combine(path, "newurls.json");
         static string PathOldUrls = Path.Combine(path, "oldurls.json");
         static string PathErrorUrls = Path.Combine(path, "errorurls.json");
+        static string PathMagnets = Path.Combine(path, "magnets.json");
 
         static List<string> NewUrls = new List<string>();
         static List<string> OldUrls = new List<string>();
@@ -77,6 +78,7 @@ namespace Tchotchomere
             foreach (var item in listMagnet)
             {
                 Console.WriteLine(item);
+                File.WriteAllText(PathMagnets, item + Environment.NewLine, System.Text.Encoding.UTF8);
             }
         }
         static void AccessingUrl(string link)
