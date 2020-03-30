@@ -15,5 +15,17 @@ namespace MovieTimeLibraryCore.Context
         {
             optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Nome_BancoDados;Trusted_Connection=True;");
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DownloadData>()
+            .HasOne(b => b.Watch)
+            .WithMany(a => a.Downloads)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subtitle>()
+            .HasOne(b => b.Watch)
+            .WithMany(a => a.Subtitles)
+            .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using MovieTimeLibraryCore;
 using MovieTimeLibraryCore.Context;
 
 namespace TchotchomereCore
@@ -12,7 +13,7 @@ namespace TchotchomereCore
         static string PathNewUrls = Path.Combine(path, "newurls.json");
         static string PathOldUrls = Path.Combine(path, "oldurls.json");
         static string PathErrorUrls = Path.Combine(path, "errorurls.json");
-        static string PathMagnets = Path.Combine(path, "magnets.magnets");
+        static string PathMagnets = Path.Combine(path, "magnets.txt");
 
 
         static void Main(string[] args)
@@ -20,6 +21,11 @@ namespace TchotchomereCore
             var botClient = new BotClient("https://www.bludv.tv/", true);
             botClient.ResultEvent += BotClient_ResultEvent; ;
             botClient.Start();
+            using (var db = new ApplicationContext())
+            {
+                var watches = db.Watches.OrderBy(x => x.Title).ToList();
+
+            }
         }
 
         private static void BotClient_ResultEvent(ResultEventArgs Result)
