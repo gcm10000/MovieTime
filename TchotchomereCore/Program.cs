@@ -21,25 +21,23 @@ namespace TchotchomereCore
             var botClient = new BotClient("https://www.bludv.tv/", true);
             botClient.ResultEvent += BotClient_ResultEvent; ;
             botClient.Start();
-            using (var db = new ApplicationContext())
-            {
-                var watches = db.Watches.OrderBy(x => x.Title).ToList();
-
-            }
         }
 
         private static void BotClient_ResultEvent(ResultEventArgs Result)
         {
-            if (Result.Address.ToLower().Contains("temporada"))
-            {
 
-            }
             if (Result.Exception != null)
             {
                 Console.WriteLine(Result.Exception.Message);
                 return;
             }
             Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.Address}";
+
+            if (Result.Address.ToLower().Contains("temporada"))
+            {
+
+            }
+
             var listMagnet = Result.TotalLinks.Where(x => new Uri(x).Scheme == "magnet");
             Console.WriteLine(Result.Address);
             foreach (var item in listMagnet)

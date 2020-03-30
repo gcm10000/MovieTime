@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.SqlServer;
 
 namespace MovieTimeLibraryCore.Context
 {
-    class ApplicationContext : DbContext
+    public class ApplicationContext : DbContext
     {
         public DbSet<Watch> Watches { get; set; }
         public DbSet<DownloadData> DownloadData { get; set; }

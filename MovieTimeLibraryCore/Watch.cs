@@ -7,7 +7,7 @@ namespace MovieTimeLibraryCore
     public enum TypeWatch
     {
         Series = 0,
-        Movie = 1
+        Film = 1
     }
     public class Watch
     {
