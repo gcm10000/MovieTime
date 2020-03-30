@@ -17,7 +17,7 @@ namespace TchotchomereCore.Information
         {
             this.apiKey = apiKey;
         }
-        public Watch InformationFromAPI(Watch watch)
+        public Watch InformationFromTheMovieDB(Watch watch)
         {
             Uri baseUriQuery = new Uri("https://api.themoviedb.org/3/search/");
             //https://api.themoviedb.org/3/search/movie
