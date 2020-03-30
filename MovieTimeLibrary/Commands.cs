@@ -313,9 +313,9 @@ namespace LibraryShared
             Connection.Disconnect();
             return searchWatches.ToArray();
         }
-        private Watch.TypeWatch GetType(bool IsMovie)
+        private TypeWatch GetType(bool IsMovie)
         {
-            return (IsMovie) ? Watch.TypeWatch.Movie : Watch.TypeWatch.Series;
+            return (IsMovie) ? TypeWatch.Film : TypeWatch.Series;
         }
     }
 }

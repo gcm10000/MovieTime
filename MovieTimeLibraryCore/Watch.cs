@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace LibraryShared
+namespace MovieTimeLibraryCore
 {
     public enum TypeWatch
     {
         Series = 0,
-        Film = 1
+        Movie = 1
     }
     public class Watch
     {
@@ -21,7 +21,7 @@ namespace LibraryShared
         #region Data from API
         public int IDTheMovieDB { get; set; }
         public string IDIMDb { get; set; }
-        public string[] Genres { get; set; }
+        public List<string> Genres { get; set; }
         public string PosterPicture { get; set; }
         public string BackdropPicture { get; set; }
         public string Date { get; set; }

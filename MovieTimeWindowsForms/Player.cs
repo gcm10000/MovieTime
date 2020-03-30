@@ -23,7 +23,7 @@ namespace MovieTimeWindowsForms
             //vlcControl.SetMedia(<MEDIA>), new string[] { });
 
             //Check movie or TV series
-            if (watch.Type == Watch.TypeWatch.Movie)
+            if (watch.Type == TypeWatch.Film)
             {
                 StartClientTorrent(watch.Downloads[0].DownloadText);
             }

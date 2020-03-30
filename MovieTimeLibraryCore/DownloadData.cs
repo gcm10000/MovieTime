@@ -1,4 +1,4 @@
-﻿namespace LibraryShared
+﻿namespace MovieTimeLibraryCore
 {
     public class DownloadData
     {

@@ -28,7 +28,7 @@ namespace Tchotchomere
         static string PathNewUrls = Path.Combine(path, "newurls.json");
         static string PathOldUrls = Path.Combine(path, "oldurls.json");
         static string PathErrorUrls = Path.Combine(path, "errorurls.json");
-        static string PathMagnets = Path.Combine(path, "magnets.json");
+        static string PathMagnets = Path.Combine(path, "magnets.magnets");
 
         static List<string> NewUrls = new List<string>();
         static List<string> OldUrls = new List<string>();
@@ -65,20 +65,27 @@ namespace Tchotchomere
             //} while (NewUrls.Count > 0);
             Console.ReadKey();
         }
-        private static void BotClient_ResultEvent(EventResult Result)
+        private static void BotClient_ResultEvent(ResultEventArgs Result)
         {
+            if (Result.Address.ToLower().Contains("temporada"))
+            {
+
+            }
             if (Result.Exception != null)
             {
                 Console.WriteLine(Result.Exception.Message);
                 return;
             }
-            Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.ResultUrl}";
+            Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.Address}";
             var listMagnet = Result.TotalLinks.Where(x => new Uri(x).Scheme == "magnet");
-            Console.WriteLine(Result.ResultUrl);
+            Console.WriteLine(Result.Address);
             foreach (var item in listMagnet)
             {
                 Console.WriteLine(item);
-                File.WriteAllText(PathMagnets, item + Environment.NewLine, System.Text.Encoding.UTF8);
+                using (StreamWriter writer = new StreamWriter(PathMagnets, true))
+                {
+                    writer.WriteLine(item + Environment.NewLine);
+                }
             }
         }
         static void AccessingUrl(string link)
@@ -174,13 +181,13 @@ namespace Tchotchomere
                 if (url.ToLower().Contains("temporada"))
                 {
                     //It's a series!
-                    watch.Type = Watch.TypeWatch.Series;
+                    watch.Type = TypeWatch.Series;
                     downloadData.SeasonTV = url.GetSeason();
                 }
                 else
                 {
                     //It's a movie!
-                    watch.Type = Watch.TypeWatch.Movie;
+                    watch.Type = TypeWatch.Film;
                 }
                 if (linksInside == null)
                 {
@@ -217,7 +224,7 @@ namespace Tchotchomere
                     else if (linksInside.Count > 1)
                     {
                         //It's a series!
-                        watch.Type = Watch.TypeWatch.Series;
+                        watch.Type = TypeWatch.Series;
                         if (h4Inside != null)
                         {
                             foreach (var h4 in h4Inside)
@@ -344,7 +351,7 @@ namespace Tchotchomere
             Uri uriQuery;
             string ResultQuery;
 
-            if (watch.Type == Watch.TypeWatch.Movie)
+            if (watch.Type == TypeWatch.Film)
             {
                 uriQuery = new Uri(baseUriQuery, "movie")
                     .AddQuery("api_key", apiKey)
@@ -523,6 +530,10 @@ namespace Tchotchomere
             if (!File.Exists(PathNewUrls))
             {
                 File.Create(PathNewUrls);
+            }
+            if (!File.Exists(PathMagnets))
+            {
+                File.Create(PathMagnets);
             }
             if (!File.Exists(PathOldUrls))
             {
