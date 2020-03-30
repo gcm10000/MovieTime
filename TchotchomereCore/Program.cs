@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using MovieTimeLibraryCore;
 using MovieTimeLibraryCore.Context;
+using TchotchomereCore.Information;
 
 namespace TchotchomereCore
 {
@@ -31,23 +32,31 @@ namespace TchotchomereCore
                 Console.WriteLine(Result.Exception.Message);
                 return;
             }
+
             Console.Title = $"Total queued: {Result.OldUrls.Count} --- To load: {Result.NewUrls.Count} --- Current address: {Result.Address}";
-
-            if (Result.Address.ToLower().Contains("temporada"))
+            GetFromPage(html: Result.ResultHtml, address: Result.Address, AllLinks: Result.TotalLinks.ToArray());
+        }
+        private static void GetFromPage(string html, string address, string[] AllLinks)
+        {
+            GetInformationFromPage info = new GetInformationFromPage();
+            Watch watchBludv = info.GetInfoOnPage(html, address);
+            GetInformationFromAPI infoAPI = new GetInformationFromAPI(apiKey);
+            Watch watchMovieDB = infoAPI.InformationFromTheMovieDB(watchBludv);
+            using (var db = new ApplicationContext())
             {
-
+                db.Watches.Add(watchMovieDB);
             }
 
-            var listMagnet = Result.TotalLinks.Where(x => new Uri(x).Scheme == "magnet");
-            Console.WriteLine(Result.Address);
-            foreach (var item in listMagnet)
-            {
-                Console.WriteLine(item);
-                using (StreamWriter writer = new StreamWriter(PathMagnets, true))
-                {
-                    writer.WriteLine(item + Environment.NewLine);
-                }
-            }
+            //var listMagnet = AllLinks.Where(x => new Uri(x).Scheme == "magnet");
+            //Console.WriteLine(address);
+            //foreach (var item in listMagnet)
+            //{
+            //    Console.WriteLine(item);
+            //    using (StreamWriter writer = new StreamWriter(PathMagnets, true))
+            //    {
+            //        writer.WriteLine(item + Environment.NewLine);
+            //    }
+            //}
         }
     }
 }
