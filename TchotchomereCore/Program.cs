@@ -22,6 +22,7 @@ namespace TchotchomereCore
             var botClient = new BotClient("https://www.bludv.tv/", true);
             botClient.ResultEvent += BotClient_ResultEvent; ;
             botClient.Start();
+            Console.ReadLine();
         }
 
         private static void BotClient_ResultEvent(ResultEventArgs Result)
