@@ -129,13 +129,10 @@ namespace TchotchomereCore.Information
                         watch.IDTheMovieDB = infoSeries.id;
                         watch.IDIMDb = infoSeries.imdb_id;
                         var genres = new List<string>();
-                        //if (watch.Title.Contains("fear"))
-                        //{
-
-                        //}
                         foreach (var genre in Info.genre_ids)
                         {
-                            genres.Add(Genre.TVWatch[genre]);
+                            if (Genre.TVWatch.ContainsKey(genre))
+                                genres.Add(Genre.TVWatch[genre]);
                         }
                         //Do not make this because take along more cicles
                         //watch.Title = (watch.Title == string.Empty) ? info.name : watch.Title;

@@ -11,6 +11,11 @@ namespace MovieTimeLibraryCore
     }
     public class Watch
     {
+        public Watch()
+        {
+            this.Subtitles = new List<Subtitle>();
+            this.Downloads = new List<DownloadData>();
+        }
         #region Data API MovieTime
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
