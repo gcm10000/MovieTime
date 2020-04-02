@@ -2,6 +2,7 @@
 using MovieTimeLibraryCore;
 using System;
 using System.Net;
+using System.Web;
 
 namespace TchotchomereCore.Information
 {
@@ -173,11 +174,11 @@ namespace TchotchomereCore.Information
             {
                 if (strInfo.Contains("Baixar:") || strInfo.Contains("Baixar Filme:") || strInfo.Contains("Baixar Série:") || strInfo.Contains("Título Traduzido:") || strInfo.Contains("Titulo Traduzido:"))
                 {
-                    watch.Title = strInfo.Replace("Baixar:", "").Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Replace("Titulo Traduzido:", "").Replace("Título Traduzido:", "").Trim().CareTitle();
+                    watch.Title = HttpUtility.HtmlDecode(strInfo.Replace("Baixar:", "").Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Replace("Titulo Traduzido:", "").Replace("Título Traduzido:", "").Trim().CareTitle()).Trim();
                 }
                 else if (strInfo.Contains("Titulo Original:") || strInfo.Contains("Título Original:"))
                 {
-                    watch.TitleOriginal = strInfo.Replace("Titulo Original:", "").Replace("Título Original:", "").Trim().CareTitle();
+                    watch.TitleOriginal = HttpUtility.HtmlDecode(strInfo.Replace("Titulo Original:", "").Replace("Título Original:", "").Trim().CareTitle()).Trim();
                 }
                 else if (strInfo.Contains("Qualidade:"))
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Web;
 using MovieTimeLibraryCore;
 using MovieTimeLibraryCore.Context;
 using TchotchomereCore.Information;
@@ -52,6 +53,7 @@ namespace TchotchomereCore
             //---OUTPUT---
             Console.WriteLine($"Informações de {address}:");
             Console.WriteLine("Título: " + watch.Title);
+            Console.WriteLine();
             //Console.WriteLine("Título Original: " + watch.TitleOriginal);
             //Console.WriteLine("Duração: " + watch.Duration);
             //int e = 1;
