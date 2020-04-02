@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using TchotchomereCore;
 
 namespace TchotchomereCore.Information
 {
@@ -17,8 +18,11 @@ namespace TchotchomereCore.Information
         {
             this.apiKey = apiKey;
         }
+        private bool isTested = false;
         public Watch InformationFromTheMovieDB(Watch watch)
         {
+            if ((watch.Title == null) && (watch.TitleOriginal == null))
+                return watch;
             Uri baseUriQuery = new Uri("https://api.themoviedb.org/3/search/");
             //https://api.themoviedb.org/3/search/movie
             //api_key=<api_key>
@@ -33,11 +37,19 @@ namespace TchotchomereCore.Information
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
                     .AddQuery("language", "pt-BR");
-                var strQuery = (watch.Title != string.Empty) ? uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}" : uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
-                ResultQuery = GetResult(new Uri(strQuery));
+                var strQueryDubbedTitle = uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}";
+                ResultQuery = GetResult(new Uri(strQueryDubbedTitle));
+
                 MovieInformationQuery ResultsFromQuery = JsonConvert.DeserializeObject<MovieInformationQuery>(ResultQuery);
+
                 if (ResultsFromQuery.results != null)
                 {
+                    if (ResultsFromQuery.results.Length == 0)
+                    {
+                        var strQueryOriginalTitle = uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
+                        ResultQuery = GetResult(new Uri(strQueryOriginalTitle));
+                        ResultsFromQuery = JsonConvert.DeserializeObject<MovieInformationQuery>(ResultQuery);
+                    }
                     if (ResultsFromQuery.results.Length > 0)
                     {
                         List<int> numbersComputed = new List<int>();
@@ -95,11 +107,20 @@ namespace TchotchomereCore.Information
                     .AddQuery("page", "1")
                     .AddQuery("include_adult", "true")
                     .AddQuery("language", "pt-BR");
-                var strQuery = (watch.Title != string.Empty) ? uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}" : uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
-                ResultQuery = GetResult(new Uri(strQuery));
+
+                var strQueryDubbedTitle = uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.Title)}";
+                ResultQuery = GetResult(new Uri(strQueryDubbedTitle));
                 TVInformationQuery ResultsFromQuery = JsonConvert.DeserializeObject<TVInformationQuery>(ResultQuery);
+
+
                 if (ResultsFromQuery.results != null)
                 {
+                    if (ResultsFromQuery.results.Length == 0)
+                    {
+                        var strQueryOriginalTitle = uriQuery.ToString() + $"&query={Uri.EscapeUriString(watch.TitleOriginal)}";
+                        ResultQuery = GetResult(new Uri(strQueryOriginalTitle));
+                        ResultsFromQuery = JsonConvert.DeserializeObject<TVInformationQuery>(ResultQuery);
+                    }
                     if (ResultsFromQuery.results.Length > 0)
                     {
                         List<int> numbersComputed = new List<int>();
@@ -148,7 +169,14 @@ namespace TchotchomereCore.Information
                     }
                 }
             }
-            throw new NullReferenceException("Nada foi encontrado.");
+            if (isTested)
+                throw new NullReferenceException("Nada foi encontrado.");
+            isTested = true;
+            if (watch.Type == TypeWatch.Series)
+                watch.Type = TypeWatch.Film;
+            else if (watch.Type == TypeWatch.Film)
+                watch.Type = TypeWatch.Series;
+            return InformationFromTheMovieDB(watch);
         }
         static int[] GetMinNumber(int[] numbers)
         {

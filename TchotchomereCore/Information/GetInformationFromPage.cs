@@ -158,72 +158,87 @@ namespace TchotchomereCore.Information
         }
         public Watch GetInfoFromBludv(string html, string url, string classContent)
         {
-            try
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var infoHTML = doc.DocumentNode.SelectSingleNode($"//*[@class=\"{classContent}\"]");
+            if (infoHTML == null) return null;
+            string infoText = infoHTML.InnerHtml.Replace("<br>", "\n").StripHTML();
+            string[] infoTextSplited = infoText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            Watch watch = new Watch();
+            watch.Downloads = new System.Collections.Generic.List<DownloadData>();
+            DownloadData downloadData = new DownloadData();
+
+            foreach (var strInfo in infoTextSplited)
             {
-                var doc = new HtmlDocument();
-                doc.LoadHtml(html);
-                var infoHTML = doc.DocumentNode.SelectSingleNode($"//*[@class=\"{classContent}\"]");
-                if (infoHTML == null) return null;
-                string infoText = infoHTML.InnerHtml.Replace("<br>", "\n").StripHTML();
-                string[] infoTextSplited = infoText.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-                Watch watch = new Watch();
-                watch.Downloads = new System.Collections.Generic.List<DownloadData>();
-                DownloadData downloadData = new DownloadData();
-
-                foreach (var strInfo in infoTextSplited)
+                if (strInfo.Contains("Baixar:") || strInfo.Contains("Baixar Filme:") || strInfo.Contains("Baixar Série:") || strInfo.Contains("Título Traduzido:") || strInfo.Contains("Titulo Traduzido:"))
                 {
-                    if (strInfo.Contains("Baixar:") || strInfo.Contains("Baixar Filme:") || strInfo.Contains("Baixar Série:") || strInfo.Contains("Título Traduzido:") || strInfo.Contains("Titulo Traduzido:"))
+                    watch.Title = strInfo.Replace("Baixar:", "").Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Replace("Titulo Traduzido:", "").Replace("Título Traduzido:", "").Trim().CareTitle();
+                }
+                else if (strInfo.Contains("Titulo Original:") || strInfo.Contains("Título Original:"))
+                {
+                    watch.TitleOriginal = strInfo.Replace("Titulo Original:", "").Replace("Título Original:", "").Trim().CareTitle();
+                }
+                else if (strInfo.Contains("Qualidade:"))
+                {
+                    downloadData.Quality = strInfo.Replace("Qualidade:", "").Trim();
+                }
+                else if (strInfo.Contains("Áudio:") && (downloadData.Audio == string.Empty))
+                {
+                    downloadData.Audio = strInfo.Replace("Áudio:", "").Trim();
+                }
+                else if (strInfo.ToLower().Contains("formato:"))
+                {
+                    downloadData.Format = strInfo.ToLower().Replace("formato:", "").ToUpper().Trim();
+                }
+                else if (strInfo.ToLower().Contains("tamanho:"))
+                {
+                    downloadData.Size = strInfo.ToLower().Replace("tamanho:", "").ToUpper().Trim();
+                }
+                else if (strInfo.ToLower().Contains("duração:"))
+                {
+                    watch.Duration = strInfo.ToLower().Replace("duração:", "").Trim();
+                }
+            }
+
+            var links = doc.DocumentNode.SelectNodes("//a");
+            var linksInside = infoHTML.SelectNodes(".//a");
+
+            if (url.ToLower().Contains("temporada"))
+            {
+                //It's a series!
+                watch.Type = TypeWatch.Series;
+                downloadData.SeasonTV = url.GetSeason();
+            }
+            else
+            {
+                //It's a movie!
+                watch.Type = TypeWatch.Film;
+            }
+            if (linksInside == null)
+            {
+                foreach (var link in links)
+                {
+                    if (link.Attributes["href"] != null)
                     {
-                        watch.Title = strInfo.Replace("Baixar:", "").Replace("Baixar Filme:", "").Replace("Baixar Série:", "").Replace("Titulo Traduzido:", "").Replace("Título Traduzido:", "").Trim().CareTitle();
-                    }
-                    else if (strInfo.Contains("Titulo Original:") || strInfo.Contains("Título Original:"))
-                    {
-                        watch.TitleOriginal = strInfo.Replace("Titulo Original:", "").Replace("Título Original:", "").Trim().CareTitle();
-                    }
-                    else if (strInfo.Contains("Qualidade:"))
-                    {
-                        downloadData.Quality = strInfo.Replace("Qualidade:", "").Trim();
-                    }
-                    else if (strInfo.Contains("Áudio:") && (downloadData.Audio == string.Empty))
-                    {
-                        downloadData.Audio = strInfo.Replace("Áudio:", "").Trim();
-                    }
-                    else if (strInfo.ToLower().Contains("formato:"))
-                    {
-                        downloadData.Format = strInfo.ToLower().Replace("formato:", "").ToUpper().Trim();
-                    }
-                    else if (strInfo.ToLower().Contains("tamanho:"))
-                    {
-                        downloadData.Size = strInfo.ToLower().Replace("tamanho:", "").ToUpper().Trim();
-                    }
-                    else if (strInfo.ToLower().Contains("duração:"))
-                    {
-                        watch.Duration = strInfo.ToLower().Replace("duração:", "").Trim();
+                        var magnet = System.Web.HttpUtility.HtmlDecode(link.Attributes["href"].Value);
+                        if (magnet.Contains("magnet:?"))
+                        {
+                            downloadData.Magnet = magnet;
+                            watch.Downloads.Add(downloadData);
+                        }
                     }
                 }
-
-                var links = doc.DocumentNode.SelectNodes("//a");
-                var linksInside = infoHTML.SelectNodes(".//a");
-
-                if (url.ToLower().Contains("temporada"))
-                {
-                    //It's a series!
-                    watch.Type = TypeWatch.Series;
-                    downloadData.SeasonTV = url.GetSeason();
-                }
-                else
-                {
-                    //It's a movie!
-                    watch.Type = TypeWatch.Film;
-                }
-                if (linksInside == null)
+            }
+            else
+            {
+                if (linksInside.Count == 1)
                 {
                     foreach (var link in links)
                     {
                         if (link.Attributes["href"] != null)
                         {
-                            var magnet = System.Web.HttpUtility.HtmlDecode(link.Attributes["href"].Value);
+                            var magnet = link.Attributes["href"].Value;
                             if (magnet.Contains("magnet:?"))
                             {
                                 downloadData.Magnet = magnet;
@@ -232,61 +247,41 @@ namespace TchotchomereCore.Information
                         }
                     }
                 }
-                else
+                else if (linksInside.Count > 1)
                 {
-                    if (linksInside.Count == 1)
+                    //It's a series!
+                    //watch.Type = TypeWatch.Series;
+                    if (linksInside != null)
                     {
-                        foreach (var link in links)
+                        foreach (var a in linksInside)
                         {
-                            if (link.Attributes["href"] != null)
+                            var text = System.Web.HttpUtility.HtmlDecode(a.InnerText).ToLower().RemoveDiacritics().Replace("–", "").Replace("download", "").Replace("episodio", "Episódio").Trim(); // – Download
+                            var link = System.Web.HttpUtility.HtmlDecode(a.Attributes["href"].Value);
+                            if (link.Contains("magnet:?"))
                             {
-                                var magnet = link.Attributes["href"].Value;
-                                if (magnet.Contains("magnet:?"))
+                                DownloadData data = new DownloadData();
+                                data.Quality = text.ToUpper();
+                                data.Audio = downloadData.Audio;
+                                data.Format = downloadData.Format;
+                                data.Size = WebUtility.HtmlDecode(downloadData.Size);
+                                data.Magnet = link;
+                                if (link.Contains("Vingadores"))
                                 {
-                                    downloadData.Magnet = magnet;
-                                    watch.Downloads.Add(downloadData);
+
                                 }
-                            }
-                        }
-                    }
-                    else if (linksInside.Count > 1)
-                    {
-                        //It's a series!
-                        watch.Type = TypeWatch.Series;
-                        if (linksInside != null)
-                        {
-                            foreach (var a in linksInside)
-                            {
-                                var text = System.Web.HttpUtility.HtmlDecode(a.InnerText).ToLower().RemoveDiacritics().Replace("–", "").Replace("download", "").Replace("episodio", "Episódio").Trim(); // – Download
-                                var link = System.Web.HttpUtility.HtmlDecode(a.Attributes["href"].Value);
-                                if (link.Contains("magnet:?"))
-                                {
-                                    DownloadData data = new DownloadData();
-                                    data.Quality = text.ToUpper();
-                                    data.Audio = downloadData.Audio;
-                                    data.Format = downloadData.Format;
-                                    data.Size = WebUtility.HtmlDecode(downloadData.Size);
-                                    data.Magnet = link;
+                                if (watch.Type == TypeWatch.Series)
                                     if (InfoExtractor.ExistsDisplayName(link))
-                                        data.EpisodeTV = InfoExtractor.EpisodeExtractor(link).ToString();
-                                    //else if ...
-                                    data.SeasonTV = url.GetSeason();
-                                    watch.Downloads.Add(data);
-                                }
+                                        data.EpisodeTV = InfoExtractor.EpisodeExtractor(link);
+                                //else if ...
+                                data.SeasonTV = url.GetSeason();
+                                watch.Downloads.Add(data);
                             }
                         }
                     }
                 }
-
-                return watch;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw ex;
             }
 
+            return watch;
         }
-
     }
 }

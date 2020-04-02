@@ -50,31 +50,31 @@ namespace TchotchomereCore
             //}
 
             //---OUTPUT---
-            Console.WriteLine($"Informações de {url}:");
+            Console.WriteLine($"Informações de {address}:");
             Console.WriteLine("Título: " + watch.Title);
-            Console.WriteLine("Título Original: " + watch.TitleOriginal);
-            Console.WriteLine("Duração: " + watch.Duration);
-            int e = 1;
-            Console.WriteLine("Informações da legenda:");
-            Console.WriteLine("Total: " + watch.Subtitles.Count.ToString());
-            foreach (var subtitle in watch.Subtitles)
-            {
-                Console.WriteLine(" {0}) ", e++);
-                Console.WriteLine("Idioma: " + subtitle.Lang);
-                Console.WriteLine("Download: " + subtitle.DownloadText);
-            }
-            Console.WriteLine("Informações do download:");
-            Console.WriteLine("Total: " + watch.Downloads.Count.ToString());
-            int i = 1;
-            foreach (var aInfo in watch.Downloads)
-            {
-                Console.WriteLine(" {0}) ", i++);
-                Console.WriteLine(" Qualidade: " + aInfo.Quality);
-                Console.WriteLine(" Áudio: " + aInfo.Audio);
-                Console.WriteLine(" Formato: " + aInfo.Format);
-                Console.WriteLine(" Tamanho: " + aInfo.Size);
-                Console.WriteLine(" Magnet: " + aInfo.Magnet);
-            }
+            //Console.WriteLine("Título Original: " + watch.TitleOriginal);
+            //Console.WriteLine("Duração: " + watch.Duration);
+            //int e = 1;
+            //Console.WriteLine("Informações da legenda:");
+            //Console.WriteLine("Total: " + watch.Subtitles.Count.ToString());
+            //foreach (var subtitle in watch.Subtitles)
+            //{
+            //    Console.WriteLine(" {0}) ", e++);
+            //    Console.WriteLine("Idioma: " + subtitle.Lang);
+            //    Console.WriteLine("Download: " + subtitle.DownloadText);
+            //}
+            //Console.WriteLine("Informações do download:");
+            //Console.WriteLine("Total: " + watch.Downloads.Count.ToString());
+            //int i = 1;
+            //foreach (var aInfo in watch.Downloads)
+            //{
+            //    Console.WriteLine(" {0}) ", i++);
+            //    Console.WriteLine(" Qualidade: " + aInfo.Quality);
+            //    Console.WriteLine(" Áudio: " + aInfo.Audio);
+            //    Console.WriteLine(" Formato: " + aInfo.Format);
+            //    Console.WriteLine(" Tamanho: " + aInfo.Size);
+            //    Console.WriteLine(" Magnet: " + aInfo.Magnet);
+            //}
             //var listMagnet = AllLinks.Where(x => new Uri(x).Scheme == "magnet");
             //Console.WriteLine(address);
             //foreach (var item in listMagnet)

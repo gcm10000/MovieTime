@@ -1,10 +1,9 @@
-﻿using HtmlAgilityPack;
-using MovieTimeLibraryCore;
+﻿using Newtonsoft.Json;
 using System;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Tchotchomere
+namespace TchotchomereCore
 {
     public static class Helper
     {
@@ -57,6 +56,20 @@ namespace Tchotchomere
             }
 
             return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        }
+        public static bool TryParseJson<T>(this string obj, out T result)
+        {
+            try
+            {
+                // Validate missing fields of object
+                result = JsonConvert.DeserializeObject<T>(obj);
+                return true;
+            }
+            catch (Exception)
+            {
+                result = default(T);
+                return false;
+            }
         }
         public static Uri AddQuery(this Uri uri, string name, string value)
         {

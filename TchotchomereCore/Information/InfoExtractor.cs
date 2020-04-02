@@ -12,16 +12,18 @@ namespace TchotchomereCore.Information
             Regex MagnetRegex = new Regex("dn=(.*?)[&|$]", RegexOptions.Singleline | RegexOptions.CultureInvariant);
             return MagnetRegex.IsMatch(magnet);
         }
-        public static int EpisodeExtractor(string magnet)
+        public static string EpisodeExtractor(string magnet)
         {
-            Regex EpisodeRegex = new Regex("E(.*?)[%|\\s|.|-|$]", RegexOptions.Singleline | RegexOptions.CultureInvariant);
-            if (EpisodeRegex.IsMatch(magnet))
+            var dn = Regex.Match(magnet, "dn=(.*?)[&|$]", RegexOptions.IgnoreCase).Value;
+            Regex MagnetRegex = new Regex("dn=(.*?)[&|$]", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            Regex EpisodeRegex = new Regex("E(.*?)[%|\\s|.|+|-|_|[a-zA-Z]|$]", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            if (EpisodeRegex.IsMatch(dn))
             {
-                var resultRegex = EpisodeRegex.Match(magnet);
+                var resultRegex = EpisodeRegex.Match(dn);
                 var mRegex = resultRegex.Groups[1];
-                return int.Parse(mRegex.Value); 
+                return (mRegex.Value); 
             }
-            return -1;
+            return string.Empty;
         }
     }
 }
