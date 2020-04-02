@@ -18,7 +18,7 @@ namespace TchotchomereCore.Information
         {
             this.apiKey = apiKey;
         }
-        private bool isTested = false;
+        private bool wasToggle = false;
         public Watch InformationFromTheMovieDB(Watch watch)
         {
             if ((watch.Title == null) && (watch.TitleOriginal == null))
@@ -169,9 +169,10 @@ namespace TchotchomereCore.Information
                     }
                 }
             }
-            if (isTested)
-                throw new NullReferenceException("Nada foi encontrado.");
-            isTested = true;
+            //if go inside this if then doesn't match nothing and return that previous object
+            if (wasToggle)
+                return watch;
+            wasToggle = true;
             if (watch.Type == TypeWatch.Series)
                 watch.Type = TypeWatch.Film;
             else if (watch.Type == TypeWatch.Film)
