@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="MovieTimeCore.InfoMovie"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MovieTimeCore"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel Background="White">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Source="{x:Null}"></Image>
+            <Grid Grid.Column="1" HorizontalAlignment="Stretch" Margin="10 0 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="TÍTULO" FontSize="22" Margin="0 20 0 0"></TextBlock>
+                <TextBlock Grid.Row="1" Text="Duração" FontSize="16" Margin="0 10 0 0"></TextBlock>
+                <TextBlock Grid.Row="2" Text="IMDB" FontSize="16" Margin="0 10 0 0"></TextBlock>
+                <Button Grid.Row="3" Content="Assistir" FontSize="16" Margin="0 10 0 0"></Button>
+                <TextBlock Grid.Row="4" Text="Sinopse" FontSize="16" Margin="0 10 0 0"></TextBlock>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</UserControl>

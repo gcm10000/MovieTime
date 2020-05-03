@@ -1,0 +1,3 @@
+﻿1>------ Compilação iniciada: Projeto: TchotchomereCore, Configuração: Debug Any CPU ------
+1>TchotchomereCore -> C:\Users\Gabriel\source\repos\MovieTime\TchotchomereCore\bin\Debug\netcoreapp3.1\TchotchomereCore.dll
+========== Compilar: 1 com êxito, 0 com falha, 1 atualizados, 0 ignorados ==========

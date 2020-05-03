@@ -13,9 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieTimeWindowsForms", "Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieTimeLibrary", "MovieTimeLibrary\MovieTimeLibrary.csproj", "{1DF79140-E608-46D9-870A-786755491199}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TchotchomereCore", "TchotchomereCore\TchotchomereCore.csproj", "{1DEC32C6-CC02-4937-82BD-72AB67C08524}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TchotchomereCore", "TchotchomereCore\TchotchomereCore.csproj", "{1DEC32C6-CC02-4937-82BD-72AB67C08524}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieTimeLibraryCore", "MovieTimeLibraryCore\MovieTimeLibraryCore.csproj", "{AF98F852-7A2C-4CF3-A46C-287E9C150413}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieTimeLibraryCore", "MovieTimeLibraryCore\MovieTimeLibraryCore.csproj", "{AF98F852-7A2C-4CF3-A46C-287E9C150413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieTimeCore", "MovieTimeCore\MovieTimeCore.csproj", "{5F5C15BD-C707-499D-8E17-A61032A87417}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{AF98F852-7A2C-4CF3-A46C-287E9C150413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF98F852-7A2C-4CF3-A46C-287E9C150413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF98F852-7A2C-4CF3-A46C-287E9C150413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F5C15BD-C707-499D-8E17-A61032A87417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F5C15BD-C707-499D-8E17-A61032A87417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F5C15BD-C707-499D-8E17-A61032A87417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F5C15BD-C707-499D-8E17-A61032A87417}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

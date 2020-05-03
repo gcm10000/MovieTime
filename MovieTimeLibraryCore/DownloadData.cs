@@ -13,7 +13,7 @@ namespace MovieTimeLibraryCore
         public string Audio { get; set; }
         public string Format { get; set; }
         public string Size { get; set; }
-        public int SeasonTV { get; set; }
+        public int? SeasonTV { get; set; }
         public string EpisodeTV { get; set; }
         [Required]
         public string Magnet { get; set; }

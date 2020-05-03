@@ -209,12 +209,20 @@ namespace TchotchomereCore.Information
             {
                 //It's a series!
                 watch.Type = TypeWatch.Series;
-                downloadData.SeasonTV = url.GetSeason();
+                try
+                {
+                    downloadData.SeasonTV = url.GetSeason();
+                }
+                catch (Exception)
+                {
+                    downloadData.SeasonTV = null;
+                }
             }
             else
             {
-                //It's a movie!
+                //It's a film!
                 watch.Type = TypeWatch.Film;
+                downloadData.SeasonTV = null;
             }
             if (linksInside == null)
             {
