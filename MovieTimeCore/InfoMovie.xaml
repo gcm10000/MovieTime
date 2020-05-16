@@ -12,7 +12,7 @@
                 <ColumnDefinition Width="300"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" Source="{x:Null}"></Image>
+            <Image Name="image_Movie" Grid.Column="0" Source="{x:Null}"></Image>
             <Grid Grid.Column="1" HorizontalAlignment="Stretch" Margin="10 0 0 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
@@ -21,11 +21,11 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="TÍTULO" FontSize="22" Margin="0 20 0 0"></TextBlock>
-                <TextBlock Grid.Row="1" Text="Duração" FontSize="16" Margin="0 10 0 0"></TextBlock>
-                <TextBlock Grid.Row="2" Text="IMDB" FontSize="16" Margin="0 10 0 0"></TextBlock>
-                <Button Grid.Row="3" Content="Assistir" FontSize="16" Margin="0 10 0 0"></Button>
-                <TextBlock Grid.Row="4" Text="Sinopse" FontSize="16" Margin="0 10 0 0"></TextBlock>
+                <TextBlock Name="textBlock_Title" Grid.Row="0" Text="TÍTULO" FontSize="22" Margin="0 20 0 0"></TextBlock>
+                <TextBlock Name="textBlock_Duration" Grid.Row="1" Text="Duração" FontSize="16" Margin="0 10 0 0"></TextBlock>
+                <TextBlock Name="textBlock_IMDB" Grid.Row="2" Text="IMDB" FontSize="16" Margin="0 10 0 0"></TextBlock>
+                <Button Name="Button_Watch" Grid.Row="3" Content="Assistir" FontSize="16" Margin="0 10 0 0"></Button>
+                <TextBlock Name="textBlock_" Grid.Row="4" Text="Sinopse" FontSize="16" Margin="0 10 0 0"></TextBlock>
             </Grid>
         </Grid>
     </DockPanel>
