@@ -22,7 +22,7 @@ namespace MovieTimeApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        //MAINSOCKET - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED
+        //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
         public MainWindow()
         {
             InitializeComponent();
