@@ -9,20 +9,42 @@ namespace MovieTimeApp
 {
     public class Client
     {
-        private IHubProxy hub;
+        private HubConnection hubConnection;
+        //private IHubProxy hub;
         public Client()
         {
-            var hubConnection = new HubConnection("http://localhost:5000/");
-            hubConnection.Start();
-            hub = hubConnection.CreateHubProxy("SocketHub");
+            //Set connection
+            var connection = new HubConnection("http://localhost:5000/");
+            //Make proxy to hub based on hub name on server
+            var myHub = connection.CreateHubProxy("SocketHub");
+            //Start connection
+
+            connection.Start().ContinueWith(task => {
+                if (task.IsFaulted)
+                {
+                    Console.WriteLine("There was an error opening the connection:{0}",
+                                      task.Exception.GetBaseException());
+                }
+                else
+                {
+                    Console.WriteLine("Connected");
+                }
+
+            }).Wait();
+            //hub.Invoke("SendMessage", new[] { "teste", "alo" });
+
         }
-        public void Send(string method, string window, string message )
+        public async Task StartConnection()
         {
-            hub.Invoke(method, new[] { window, message });
+            await hubConnection.Start();
         }
-        public void Receive(string method, Action<string, string> data)
-        {
-            hub.On(method, data);
-        }
+        //public void Send(string method, string window, string message )
+        //{
+        //    hub.Invoke(method, new[] { window, message });
+        //}
+        //public void Receive(string method, Action<string, string> data)
+        //{
+        //    hub.On(method, data);
+        //}
     }
 }

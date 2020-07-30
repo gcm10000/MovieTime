@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,10 +22,13 @@ namespace MovieTimeApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        //MAINSOCKET - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED
         public MainWindow()
         {
             InitializeComponent();
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+            Client client = new Client();
+            //client.Receive("ReceiveMessage", ReceiveData);
 
             var options = new string[]
             {
@@ -34,8 +38,13 @@ namespace MovieTimeApp
             this.myVideoControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
 
             // Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
-            this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
+            //this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
+            //client.Send("SendMessage", "teste", "alo");
 
+        }
+        public void ReceiveData(string window, string message)
+        {
+            MessageBox.Show($"window: {window}\nmessage: {message}");
         }
     }
 }
