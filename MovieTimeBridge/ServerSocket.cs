@@ -93,7 +93,7 @@ namespace MovieTimeBridge
                     // All the data has been read from the client.
 
                     MethodReceive.Invoke(state);
-                }
+                } // when receive bytesRead equals one and content length equals zero, the message is done
                 else
                 {
                     // Not all data received. Get more.  
