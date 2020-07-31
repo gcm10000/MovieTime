@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,12 +24,37 @@ namespace MovieTimeApp
     public partial class MainWindow : Window
     {
         //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
+        ClientSocket client;
         public MainWindow()
         {
             InitializeComponent();
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
-            Client client = new Client();
-            //client.Receive("ReceiveMessage", ReceiveData);
+            client = new ClientSocket();
+            client.StartClient();
+
+            Task.Run(() => 
+            {
+                client.Receive((message) =>
+                {
+                    Console.WriteLine("Received: ", message);
+                });
+            });
+
+            //client.Send("teste");
+            //Thread.Sleep(50);
+            //client.Send("teste2");
+            //Thread.Sleep(50);
+            //client.Send("teste3");
+            //Thread.Sleep(50);
+            //client.Send("teste4");
+            //Thread.Sleep(50);
+            //client.Send("teste");
+            //Thread.Sleep(50);
+            //client.Send("teste2");
+            //Thread.Sleep(50);
+            //client.Send("teste3");
+            //Thread.Sleep(50);
+            //client.Send("teste4");
 
             var options = new string[]
             {

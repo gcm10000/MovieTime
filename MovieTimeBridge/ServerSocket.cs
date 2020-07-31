@@ -91,6 +91,7 @@ namespace MovieTimeBridge
                 if (content.IndexOf("<EOF>") > -1)
                 {
                     // All the data has been read from the client.
+
                     MethodReceive.Invoke(state);
                 }
                 else
