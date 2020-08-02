@@ -85,11 +85,8 @@ namespace MovieTimeBridge
                 state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
 
-                // Check for two breaklines. If it is not there, read
-                // more data.  
                 content = state.sb.ToString();
                 MethodReceive.Invoke(state);
-
 
                 // Get more.
                 handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
