@@ -8,6 +8,7 @@ namespace MovieTimeBridge
 {
     class Program
     {
+        static WebAssemblyLibrary.Client.Client webClientSocket;
         static void Main(string[] args)
         {
             //Server socket
@@ -19,19 +20,16 @@ namespace MovieTimeBridge
             Task.Run(() => { WebHost.Run(); });
 
             //Client websocket
-            
+            webClientSocket = new WebAssemblyLibrary.Client.Client();
         }
         static void ReceiveData(string MethodName, string Body, bool AllData)
         {
             Console.WriteLine("{0}: {1}", MethodName, Body);
-            if (AllData)
+            if (AllData) //All data received.
             {
-                Console.WriteLine("All data received.");
+                //Send data to webSocket
+                webClientSocket.Send(MethodName, window: "", Body);
             }
-        }
-        static void SetAction()
-        {
-
         }
     }
 }

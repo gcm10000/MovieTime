@@ -9,9 +9,9 @@ namespace MovieTimeBridge
     public class RealTimeServer
     {
         private ServerSocket server;
-        private Action<string, string, bool> MethodReceive;
+        private Action<string, string, string, bool> MethodReceive;
 
-        public RealTimeServer(Action<string, string, bool> MethodReceive, int Port)
+        public RealTimeServer(Action<string, string, string, bool> MethodReceive, int Port)
         {
             this.MethodReceive = MethodReceive;
             server = new ServerSocket(new Action<StateObject>(Receive), Port);
@@ -65,6 +65,13 @@ namespace MovieTimeBridge
             string headerLength = splitedHeaders.First(x => x.ToLower().Contains("content-length"));
             string valueLength = headerLength.Substring(headerLength.IndexOf(":") + 1);
             return int.Parse(valueLength.Trim());
+        }
+        private string ParseSection(string headers)
+        {
+            string[] splitedHeaders = headers.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string headerLength = splitedHeaders.First(x => x.ToLower().Contains("section"));
+            string valueSection = headerLength.Substring(headerLength.IndexOf(":") + 1);
+            return valueSection.Trim();
         }
     }
 }
