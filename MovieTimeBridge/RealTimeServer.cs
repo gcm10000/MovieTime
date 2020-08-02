@@ -15,6 +15,9 @@ namespace MovieTimeBridge
         {
             this.MethodReceive = MethodReceive;
             server = new ServerSocket(new Action<StateObject>(Receive), Port);
+        }
+        public void Run()
+        {
             server.StartListening();
         }
         private void Receive(StateObject state)
