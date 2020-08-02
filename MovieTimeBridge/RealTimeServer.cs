@@ -9,9 +9,9 @@ namespace MovieTimeBridge
     public class RealTimeServer
     {
         private ServerSocket server;
-        private Action<string, string> MethodReceive;
+        private Action<string, string, bool> MethodReceive;
 
-        public RealTimeServer(Action<string, string> MethodReceive, int Port)
+        public RealTimeServer(Action<string, string, bool> MethodReceive, int Port)
         {
             this.MethodReceive = MethodReceive;
             server = new ServerSocket(new Action<StateObject>(Receive), Port);
@@ -27,13 +27,22 @@ namespace MovieTimeBridge
                 state.Headers = state.Header.Substring(state.Header.IndexOf(Environment.NewLine));
                 state.ContentLength = ParseContentLength(state.Headers);
                 // All the data has been read from the client.
-                if (state.Message.Length > (positionBreakLines + (Environment.NewLine.Length * 2)))
+                var positionBody = positionBreakLines + (Environment.NewLine.Length * 2);
+                if (state.Message.Length > positionBody)
                 {
-                    var positionBody = positionBreakLines + (Environment.NewLine.Length * 2);
-                    state.Body = state.Message.Substring(positionBody, state.ContentLength);
-                    
                     var nameMethod = ParseNameMethod(state.Header);
-                    MethodReceive.Invoke(nameMethod, state.Body);
+
+                    if ((positionBody + state.ContentLength) > state.Message.Length)
+                    {
+                        state.Body = state.Message.Substring(positionBody);
+                        MethodReceive.Invoke(nameMethod, state.Body, false);
+                    }
+                    else
+                    {
+                        state.Body = state.Message.Substring(positionBody, state.ContentLength);
+                        MethodReceive.Invoke(nameMethod, state.Body, true);
+                    }
+
                 }
             }
         }
