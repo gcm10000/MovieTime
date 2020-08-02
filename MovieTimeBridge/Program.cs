@@ -14,6 +14,7 @@ namespace MovieTimeBridge
         {
             // show data in display
             Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", state.Message.Length, state.Message);
+            Console.WriteLine("HEADER: {0}", state.Header);
             //server.Send(state.workSocket, state.Message);
         }
     }

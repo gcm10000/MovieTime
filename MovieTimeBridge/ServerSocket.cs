@@ -81,15 +81,16 @@ namespace MovieTimeBridge
 
             if (bytesRead > 0)
             {
-                // There  might be more data, so store the data received so far.  
-                state.sb.Append(Encoding.ASCII.GetString(
+                // There might be more data, so store the data received so far.  
+                state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
 
                 // Check for end-of-file tag. If it is not there, read
                 // more data.  
                 content = state.sb.ToString();
-                if (content.IndexOf("<EOF>") > -1)
+                if (content.IndexOf(Environment.NewLine + Environment.NewLine) > -1)
                 {
+                    state.Header = state.Message.Substring(0, state.Message.IndexOf(Environment.NewLine + Environment.NewLine));
                     // All the data has been read from the client.
 
                     MethodReceive.Invoke(state);
@@ -106,7 +107,7 @@ namespace MovieTimeBridge
         public void Send(Socket handler, String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  
             handler.BeginSend(byteData, 0, byteData.Length, 0,

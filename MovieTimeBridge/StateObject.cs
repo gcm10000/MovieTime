@@ -17,5 +17,7 @@ namespace MovieTimeBridge
         // Received data string.  
         public StringBuilder sb = new StringBuilder();
         public string Message { get => sb.ToString(); }
+        public string Header { get; set; }
+        public string Body { get; set; }
     }
 }

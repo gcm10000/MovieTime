@@ -1,0 +1,9 @@
+--- CLIENT:
+PROTOCOL RTTP:
+
+GET -> return value;
+SET -> return avoid;
+
+VERB FUNCTION
+Content-Length: Length
+
