@@ -7,7 +7,7 @@ namespace MovieTimeBridge
     {
         static void Main(string[] args)
         {
-            RealTimeServer server = new RealTimeServer(ReceiveData);
+            RealTimeServer server = new RealTimeServer(ReceiveData, 5010);
         }
         static void ReceiveData(string MethodName, string Body)
         {

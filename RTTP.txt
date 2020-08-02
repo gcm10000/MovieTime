@@ -4,6 +4,9 @@ PROTOCOL RTTP:
 GET -> return value;
 SET -> return avoid;
 
+-------------------
+PLAY -> Render to Software
+
 VERB FUNCTION
 Content-Length: Length
 

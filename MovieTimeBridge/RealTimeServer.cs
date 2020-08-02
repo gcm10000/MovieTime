@@ -10,11 +10,11 @@ namespace MovieTimeBridge
     {
         private ServerSocket server;
         private Action<string, string> MethodReceive;
-        public RealTimeServer(Action<string, string> MethodReceive)
+
+        public RealTimeServer(Action<string, string> MethodReceive, int Port)
         {
             this.MethodReceive = MethodReceive;
-
-            server = new ServerSocket(new Action<StateObject>(Receive));
+            server = new ServerSocket(new Action<StateObject>(Receive), Port);
             server.StartListening();
         }
         private void Receive(StateObject state)

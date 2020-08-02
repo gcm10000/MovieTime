@@ -14,12 +14,13 @@ namespace MovieTimeBridge
         // Thread signal.  
         private ManualResetEvent allDone = new ManualResetEvent(false);
         private Action<StateObject> MethodReceive;
-        public ServerSocket(Action<StateObject> MethodReceive) { this.MethodReceive = MethodReceive; }
+        private int Port;
+        public ServerSocket(Action<StateObject> MethodReceive, int Port) { this.MethodReceive = MethodReceive; this.Port = Port ; }
 
         public void StartListening()
         {
             // Establish the local endpoint for the socket.  
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Loopback, 5010);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Loopback, Port);
 
             // Create a TCP/IP socket.  
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
