@@ -29,6 +29,7 @@ namespace MovieTimeBridge
                 state.Header = state.Message.Substring(0, positionBreakLines);
                 state.Headers = state.Header.Substring(state.Header.IndexOf(Environment.NewLine));
                 state.ContentLength = ParseContentLength(state.Headers);
+                state.Section = ParseSection(state.Headers);
                 // All the data has been read from the client.
                 var positionBody = positionBreakLines + (Environment.NewLine.Length * 2);
                 if (state.Message.Length > positionBody)
@@ -38,12 +39,12 @@ namespace MovieTimeBridge
                     if ((positionBody + state.ContentLength) > state.Message.Length)
                     {
                         state.Body = state.Message.Substring(positionBody);
-                        MethodReceive.Invoke(nameMethod, state.Body, false);
+                        MethodReceive.Invoke(nameMethod, state.Section, state.Body, false);
                     }
                     else
                     {
                         state.Body = state.Message.Substring(positionBody, state.ContentLength);
-                        MethodReceive.Invoke(nameMethod, state.Body, true);
+                        MethodReceive.Invoke(nameMethod, state.Section, state.Body, true);
                     }
 
                 }

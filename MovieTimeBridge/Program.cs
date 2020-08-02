@@ -22,13 +22,13 @@ namespace MovieTimeBridge
             //Client websocket
             webClientSocket = new WebAssemblyLibrary.Client.Client();
         }
-        static void ReceiveData(string MethodName, string Body, bool AllData)
+        static void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
             Console.WriteLine("{0}: {1}", MethodName, Body);
             if (AllData) //All data received.
             {
                 //Send data to webSocket
-                webClientSocket.Send(MethodName, window: "", Body);
+                webClientSocket.Send(MethodName, window: Section, Body);
             }
         }
     }
