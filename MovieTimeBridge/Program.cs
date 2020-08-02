@@ -21,6 +21,11 @@ namespace MovieTimeBridge
 
             //Client websocket
             webClientSocket = new WebAssemblyLibrary.Client.Client();
+            webClientSocket.Receive("MethodTest", ReceiveDataWebSocket);
+        }
+        static void ReceiveDataWebSocket(string Section, string Body)
+        {
+
         }
         static void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
