@@ -19,5 +19,7 @@ namespace MovieTimeBridge
         public string Message { get => sb.ToString(); }
         public string Header { get; set; }
         public string Body { get; set; }
+        public string Headers { get; set; }
+        public int ContentLength { get; set; }
     }
 }

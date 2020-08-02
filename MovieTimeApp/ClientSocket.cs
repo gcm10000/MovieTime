@@ -59,8 +59,12 @@ namespace MovieTimeApp
                     new AsyncCallback(ConnectCallback), client);
                 connectDone.WaitOne();
 
+                string body = "teste teste2 teste3";
                 // Send test data to the remote device.  
-                Send("This is a test<EOF>");
+                Send("SET MethodTest" + Environment.NewLine);
+                Send("Content-Length: " + body.Length.ToString() + Environment.NewLine);
+                Send(Environment.NewLine);
+                Send(body);
                 sendDone.WaitOne();
 
                 // Receive the response from the remote device.  

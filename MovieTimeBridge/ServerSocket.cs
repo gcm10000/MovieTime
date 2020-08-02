@@ -85,22 +85,15 @@ namespace MovieTimeBridge
                 state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
 
-                // Check for end-of-file tag. If it is not there, read
+                // Check for two breaklines. If it is not there, read
                 // more data.  
                 content = state.sb.ToString();
-                if (content.IndexOf(Environment.NewLine + Environment.NewLine) > -1)
-                {
-                    state.Header = state.Message.Substring(0, state.Message.IndexOf(Environment.NewLine + Environment.NewLine));
-                    // All the data has been read from the client.
+                MethodReceive.Invoke(state);
 
-                    MethodReceive.Invoke(state);
-                } // when receive bytesRead equals one and content length equals zero, the message is done
-                else
-                {
-                    // Not all data received. Get more.  
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
+
+                // Get more.
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReadCallback), state);
             }
         }
 
