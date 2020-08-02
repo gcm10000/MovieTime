@@ -24,7 +24,7 @@ namespace MovieTimeBridge
         }
         static void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
-            Console.WriteLine("{0}: {1}", MethodName, Body);
+            Console.WriteLine("{0}: {1} - {2}", MethodName, Section, Body);
             if (AllData) //All data received.
             {
                 //Send data to webSocket
