@@ -11,9 +11,7 @@ namespace MovieTimeBridge
         static WebAssemblyLibrary.Client.Client webClientSocket;
         static void Main(string[] args)
         {
-            //Server socket
-            RealTimeServer server = new RealTimeServer(ReceiveData, 5010);
-            server.Run();
+ 
 
             //Server websocket
             var WebHost = WebAssemblyLibrary.Server.WebAssembly.CreateWebHostBuilder().Build();
@@ -21,11 +19,15 @@ namespace MovieTimeBridge
 
             //Client websocket
             webClientSocket = new WebAssemblyLibrary.Client.Client();
-            webClientSocket.Receive("MethodTest", ReceiveDataWebSocket);
+            webClientSocket.Receive("ReceiveMessage", ReceiveDataWebSocket);
+
+            //Server socket
+            RealTimeServer server = new RealTimeServer(ReceiveData, 5010);
+            server.Run();
         }
         static void ReceiveDataWebSocket(string Section, string Body)
         {
-
+            Console.WriteLine("Websocket says: {0}: {1}", Section, Body);
         }
         static void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
