@@ -6,13 +6,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MovieTimeApp"
         mc:Ignorable="d"
+        xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
         Title="MainWindow" Height="450" Width="800"
-        xmlns:dragablz
         xmlns:vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/materialdesign.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="NormalTabItemStyle" TargetType="{x:Type dragablz:DragablzItem}" BasedOn="{StaticResource MaterialDesignDragableTabItemStyle}">
+                <Setter Property="Width" Value="280" />
+                <Setter Property="Padding" Value="1" />
+            </Style>
+            
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <DockPanel>
-            <drag
-            <WebBrowser x:Name="webBrowser"></WebBrowser>
+            <dragablz:TabablzControl>
+                <dragablz:TabablzControl.InterTabController>
+                    <dragablz:InterTabController />
+                </dragablz:TabablzControl.InterTabController>
+                <TabItem Header="Filmes" Cursor="Hand">
+                    <WebBrowser x:Name="webBrowser1"></WebBrowser>
+                    <!--<TextBlock Cursor="Hand" Text="ola mundo" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>-->
+                </TabItem>
+                <TabItem Header="Séries" Cursor="Hand">
+                    <TextBlock Cursor="Hand" Text="teste123" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </TabItem>
+                <TabItem Header="Favoritos" Cursor="Hand">
+                    <TextBlock Cursor="Hand" Text="teste123" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </TabItem>
+            </dragablz:TabablzControl>
+            <!--<WebBrowser x:Name="webBrowser"></WebBrowser>-->
         </DockPanel>
         <!--<vlc:VlcControl x:Name="myVideoControl"></vlc:VlcControl>-->
     </Grid>
