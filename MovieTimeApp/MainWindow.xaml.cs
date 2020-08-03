@@ -30,7 +30,6 @@ namespace MovieTimeApp
             InitializeComponent();
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
             client = new ClientSocket();
-            client.StartClient();
 
             Task.Run(() => 
             {
@@ -40,21 +39,15 @@ namespace MovieTimeApp
                 });
             });
 
-            //client.Send("teste");
-            //Thread.Sleep(50);
-            //client.Send("teste2");
-            //Thread.Sleep(50);
-            //client.Send("teste3");
-            //Thread.Sleep(50);
-            //client.Send("teste4");
-            //Thread.Sleep(50);
-            //client.Send("teste");
-            //Thread.Sleep(50);
-            //client.Send("teste2");
-            //Thread.Sleep(50);
-            //client.Send("teste3");
-            //Thread.Sleep(50);
-            //client.Send("teste4");
+            string body = "teste teste2 teste3";
+            // Send test data to the remote device.  
+            client.Send("SET SendMessage" + Environment.NewLine);
+            client.Send("Section: ActionMenu" + Environment.NewLine);
+            client.Send("Content-Length: " + (body.Length * 2).ToString() + Environment.NewLine);
+            client.Send(Environment.NewLine);
+            client.Send(body);
+            Thread.Sleep(500);
+            client.Send(body);
 
             var options = new string[]
             {
@@ -65,8 +58,6 @@ namespace MovieTimeApp
 
             // Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
             this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
-            //client.Send("SendMessage", "teste", "alo");
-
         }
         public void ReceiveData(string window, string message)
         {

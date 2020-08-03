@@ -1,8 +1,9 @@
 --- CLIENT:
 PROTOCOL RTTP:
 VERB:
-	SET -> Set data;
-	GET -> Request data;
+	SET -> Set data; //verb of server
+	GET -> Request data; //verb of client
+	PLAY -> Set to play the video; 
 
 -------------------
 PLAY -> Render to Software

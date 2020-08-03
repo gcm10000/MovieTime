@@ -42,7 +42,7 @@ namespace MovieTimeApp
         // The response from the remote device.  
         private String response = String.Empty;
 
-        public void StartClient()
+        public ClientSocket()
         {
             // Connect to a remote device.  
             try
@@ -58,30 +58,6 @@ namespace MovieTimeApp
                 client.BeginConnect(remoteEP,
                     new AsyncCallback(ConnectCallback), client);
                 connectDone.WaitOne();
-
-                string body = "teste teste2 teste3";
-                // Send test data to the remote device.  
-                Send("SET SendMessage" + Environment.NewLine);
-                Send("Section: ActionMenu" + Environment.NewLine);
-                Send("Content-Length: " + (body.Length * 2).ToString() + Environment.NewLine);
-                Send(Environment.NewLine);
-                Send(body);
-                Thread.Sleep(500);
-                Send(body);
-
-                sendDone.WaitOne();
-
-                // Receive the response from the remote device.  
-                Receive(client);
-                receiveDone.WaitOne();
-
-                // Write the response to the console.  
-                Console.WriteLine("Response received : {0}", response);
-
-                //// Release the socket.  
-                //client.Shutdown(SocketShutdown.Both);
-                //client.Close();
-
             }
             catch (Exception e)
             {
