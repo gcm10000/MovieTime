@@ -1,8 +1,8 @@
 --- CLIENT:
 PROTOCOL RTTP:
-
-GET -> return value;
-SET -> return avoid;
+VERB:
+	SET -> Set data;
+	GET -> Request data;
 
 -------------------
 PLAY -> Render to Software
