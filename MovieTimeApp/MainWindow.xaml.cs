@@ -49,15 +49,15 @@ namespace MovieTimeApp
             Thread.Sleep(500);
             client.Send(body);
 
-            var options = new string[]
-            {
-                // VLC options can be given here. Please refer to the VLC command line documentation.
-            };
+            //var options = new string[]
+            //{
+            //    // VLC options can be given here. Please refer to the VLC command line documentation.
+            //};
 
-            this.myVideoControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
+            //this.myVideoControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
 
-            // Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
-            this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
+            //// Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
+            //this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
         }
         public void ReceiveData(string window, string message)
         {
