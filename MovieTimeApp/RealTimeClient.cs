@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,15 +10,22 @@ namespace MovieTimeApp
 {
     public class RealTimeClient
     {
-        ClientSocket client;
-        public RealTimeClient(Action<string> MethodReceive, int Port)
+        private ClientSocket client;
+        private Action<string, string, string, bool> MethodReceive;
+
+        public RealTimeClient(Action<string, string, string, bool> MethodReceive, EndPoint endPoint)
         {
-            client = new ClientSocket(new Action<StateObject>(Receive), Port);
+            this.MethodReceive = MethodReceive;
+            client = new ClientSocket(new Action<StateObject>(Receive), endPoint);
+        }
+        public void Connect()
+        {
+            client.Connect();
         }
         // send to server using verb get
         public void Send()
         {
-            
+
         }
         // receive from server using verb set
         public void Receive(StateObject state)
@@ -34,7 +42,7 @@ namespace MovieTimeApp
                 var positionBody = positionBreakLines + (Environment.NewLine.Length * 2);
                 if (state.Message.Length > positionBody)
                 {
-                    var nameMethod = ParseNameMethod(state.Header);
+                    string nameMethod = ParseNameMethod(state.Header);
 
                     if ((positionBody + state.ContentLength) > state.Message.Length)
                     {
@@ -49,5 +57,26 @@ namespace MovieTimeApp
 
                 }
             }
+        }
+        private string ParseNameMethod(string header)
+        {
+            string firstLine = header.Substring(0, header.IndexOf(Environment.NewLine));
+            string nameMethod = firstLine.Substring(header.IndexOf(' '));
+            return nameMethod.Trim();
+        }
+        private int ParseContentLength(string headers)
+        {
+            string[] splitedHeaders = headers.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string headerLength = splitedHeaders.First(x => x.ToLower().Contains("content-length"));
+            string valueLength = headerLength.Substring(headerLength.IndexOf(":") + 1);
+            return int.Parse(valueLength.Trim());
+        }
+        private string ParseSection(string headers)
+        {
+            string[] splitedHeaders = headers.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            string headerLength = splitedHeaders.First(x => x.ToLower().Contains("section"));
+            string valueSection = headerLength.Substring(headerLength.IndexOf(":") + 1);
+            return valueSection.Trim();
+        }
     }
 }

@@ -44,9 +44,9 @@ namespace MovieTimeApp
 
         // The response from the remote device.  
         private String response = String.Empty;
-        private IPEndPoint remoteEP;
+        private EndPoint remoteEP;
 
-        public ClientSocket(Action<StateObject> MethodReceive, int port)
+        public ClientSocket(Action<StateObject> MethodReceive, EndPoint remoteEP)
         {
             this.MethodReceive = MethodReceive;
 
@@ -54,7 +54,7 @@ namespace MovieTimeApp
             try
             {
                 // Establish the remote endpoint for the socket.  
-                remoteEP = new IPEndPoint(IPAddress.Loopback, port);
+                this.remoteEP = remoteEP;
 
                 // Create a TCP/IP socket.  
                 client = new Socket(AddressFamily.InterNetwork,
@@ -151,7 +151,7 @@ namespace MovieTimeApp
                     }
                     // Signal that all bytes have been received.  
                     receiveDone.Set();
-                    this.MethodReceive.Invoke(response);
+                    this.MethodReceive.Invoke(state);
                 }
             }
             catch (Exception e)

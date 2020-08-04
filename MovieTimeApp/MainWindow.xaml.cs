@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -29,16 +30,9 @@ namespace MovieTimeApp
         {
             InitializeComponent();
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
-            client = new ClientSocket();
 
-            Task.Run(() => 
-            {
-                client.Receive((message) =>
-                {
-                    Console.WriteLine("Received: ", message);
-                });
-            });
-
+            RealTimeClient realTimeClient = new RealTimeClient(ReceiveData, new IPEndPoint(IPAddress.Loopback, 5010));
+            realTimeClient.Connect();
             string body = "teste teste2 teste3";
             // Send test data to the remote device.  
             client.Send("SET SendMessage" + Environment.NewLine);
@@ -61,9 +55,9 @@ namespace MovieTimeApp
             this.webBrowser1.Navigate("https://www.google.com/");
             this.webBrowser1 = this.webBrowser2 = this.webBrowser3;
         }
-        public void ReceiveData(string window, string message)
+        public void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
-            MessageBox.Show($"window: {window}\nmessage: {message}");
+            MessageBox.Show($"window: {Section}\nmessage: {Body}");
         }
     }
 }
