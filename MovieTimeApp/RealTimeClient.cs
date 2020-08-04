@@ -13,9 +13,9 @@ namespace MovieTimeApp
         private ClientSocket client;
         private Action<string, string, string, bool> MethodReceive;
 
-        public RealTimeClient(Action<string, string, string, bool> MethodReceive, EndPoint endPoint)
+        public RealTimeClient(Action<string, string, string, bool> methodReceive, EndPoint endPoint)
         {
-            this.MethodReceive = MethodReceive;
+            this.MethodReceive = methodReceive;
             client = new ClientSocket(new Action<StateObject>(Receive), endPoint);
         }
         public void Connect()
@@ -23,9 +23,9 @@ namespace MovieTimeApp
             client.Connect();
         }
         // send to server using verb get
-        public void Send()
+        public void Send(string data)
         {
-
+            client.Send(data);
         }
         // receive from server using verb set
         public void Receive(StateObject state)

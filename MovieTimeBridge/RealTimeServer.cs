@@ -11,9 +11,9 @@ namespace MovieTimeBridge
         private ServerSocket server;
         private Action<string, string, string, bool> MethodReceive;
 
-        public RealTimeServer(Action<string, string, string, bool> MethodReceive, int Port)
+        public RealTimeServer(Action<string, string, string, bool> methodReceive, int Port)
         {
-            this.MethodReceive = MethodReceive;
+            this.MethodReceive = methodReceive;
             server = new ServerSocket(new Action<StateObject>(Receive), Port);
         }
         public void Run()
