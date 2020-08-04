@@ -30,7 +30,8 @@ namespace MovieTimeBridge
             {
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
-
+                Console.WriteLine("Server ready.");
+                Console.WriteLine("Waiting a client. . . ");
                 while (true)
                 {
                     // Set the event to nonsignaled state.  
@@ -60,6 +61,8 @@ namespace MovieTimeBridge
             // Get the socket that handles the client request.  
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
+
+            Console.WriteLine("A client has connected.");
 
             // Create the state object.  
             StateObject state = new StateObject();
@@ -99,6 +102,7 @@ namespace MovieTimeBridge
             catch (SocketException)
             {
                 //connection undo
+                Console.WriteLine("A client has disconnected.");
             }
             catch (Exception ex)
             {
@@ -125,7 +129,7 @@ namespace MovieTimeBridge
 
                 // Complete sending the data to the remote device.  
                 int bytesSent = client.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
+                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
             }
             catch (Exception e)
             {
