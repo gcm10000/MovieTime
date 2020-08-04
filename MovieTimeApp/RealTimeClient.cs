@@ -23,9 +23,10 @@ namespace MovieTimeApp
             client.Connect();
         }
         // send to server using verb get
-        public void Send(string data)
+        public void Send(string nameMethod, string Section, string Body)
         {
-            client.Send(data);
+
+            //client.Send(data);
         }
         // receive from server using verb set
         public void Receive(StateObject state)
