@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -54,6 +55,14 @@ namespace MovieTimeApp
         public void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
             MessageBox.Show($"window: {Section}\nmessage: {Body}\nalldata:{AllData}");
+        }
+        public void OpenBridge(int socketPort, int webSocketPort)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "bridge", "movietimebridge.exe");
+            startInfo.FileName = path;
+            startInfo.Arguments = $"{socketPort} {webSocketPort}";
+            Process.Start(startInfo);
         }
     }
 }
