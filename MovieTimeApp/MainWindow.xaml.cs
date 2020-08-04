@@ -42,7 +42,6 @@ namespace MovieTimeApp
     public partial class MainWindow : Window
     {
         //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
-        private ClientSocket client;
         public MainWindow()
         {
             InitializeComponent();
@@ -50,16 +49,11 @@ namespace MovieTimeApp
 
             RealTimeClient realTimeClient = new RealTimeClient(ReceiveData, new IPEndPoint(IPAddress.Loopback, 5010));
             realTimeClient.Connect();
-            realTimeClient.Send("", "", "");
             string body = "teste teste2 teste3";
+            realTimeClient.Send("SendMessage", "Action", body);
+            
             // Send test data to the remote device.  
-            client.Send("SET SendMessage" + Environment.NewLine);
-            client.Send("Section: ActionMenu" + Environment.NewLine);
-            client.Send("Content-Length: " + (body.Length * 2).ToString() + Environment.NewLine);
-            client.Send(Environment.NewLine);
-            client.Send(body);
-            Thread.Sleep(500);
-            client.Send(body);
+
 
             //var options = new string[]
             //{

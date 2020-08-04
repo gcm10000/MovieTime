@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace MovieTimeApp
 {
@@ -18,15 +19,21 @@ namespace MovieTimeApp
         public Verb Verb { get; }
         public int ContentLength { get; }
         public string Section { get; }
-        private string Data { get; }
+        public string NameMethod { get; }
         public StateObject State { get; }
-
+        public string Header { get; }
 
         // send data
-        public RealTimeProtocol(Verb verb, string data)
+        public RealTimeProtocol(Verb verb, string nameMethod, string section, int contentLength)
         {
             Verb = verb;
-            Data = data;
+            this.NameMethod = nameMethod;
+            this.Section = section;
+            this.ContentLength = contentLength;
+
+            this.Header = $"{Verb} {NameMethod}" + Environment.NewLine +
+                $"Content-Length: {ContentLength}" + Environment.NewLine +
+                $"Section: {Section}" + Environment.NewLine + Environment.NewLine;
         }
         // receive data
         public RealTimeProtocol(StateObject state)
@@ -43,8 +50,12 @@ namespace MovieTimeApp
             }
             this.ContentLength = ParseContentLength(state.Headers);
             this.Section = ParseSection(state.Headers);
+            this.NameMethod = ParseNameMethod(state.Headers);
         }
-
+        public string AppendBody(string body)
+        {
+            return body;
+        }
         private string ParseVerb(string header)
         {
             string firstLine = header.Substring(0, header.IndexOf(Environment.NewLine));

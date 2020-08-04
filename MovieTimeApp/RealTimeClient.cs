@@ -23,10 +23,10 @@ namespace MovieTimeApp
             client.Connect();
         }
         // send to server using verb get
-        public void Send(string nameMethod, string Section, string Body)
+        public void Send(string nameMethod, string section, string body)
         {
-
-            //client.Send(data);
+            RealTimeProtocol protocol = new RealTimeProtocol(Verb.SET, nameMethod, section, body.Length);
+            client.Send(protocol.AppendBody(body));
         }
         // receive from server using verb set
         public void Receive(StateObject state)
