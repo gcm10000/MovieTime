@@ -10,7 +10,7 @@ namespace MovieTimeBridge
     {
         private ServerSocket server;
         private Action<string, string, string, bool> MethodReceive;
-
+        private StateObject State;
         public RealTimeServer(Action<string, string, string, bool> methodReceive, int Port)
         {
             this.MethodReceive = methodReceive;
@@ -22,6 +22,8 @@ namespace MovieTimeBridge
         }
         private void Receive(StateObject state)
         {
+            // get data
+            this.State = state;
             // get position of two breaklines. It's a reference to end header and start of body
             var positionBreakLines = state.Message.IndexOf(Environment.NewLine + Environment.NewLine);
             if (positionBreakLines > -1)
@@ -50,10 +52,18 @@ namespace MovieTimeBridge
                 }
             }
         }
-        public void Send(string NameMethod, string Body)
+        public void Send(Verb verb, string nameMethod, string section, string body)
         {
-            //server.Send()
+            RealTimeProtocol protocol = new RealTimeProtocol(verb, nameMethod, section, body.Length);
+            server.Send(State.workSocket, protocol.AppendBody(body));
         }
+        public void Send(StateObject state)
+        {
+            RealTimeProtocol protocol = new RealTimeProtocol(state);
+
+            server.Send(State.workSocket, protocol.AppendBody(state.Body));
+        }
+
         private string ParseNameMethod(string header)
         {
             string firstLine = header.Substring(0, header.IndexOf(Environment.NewLine));

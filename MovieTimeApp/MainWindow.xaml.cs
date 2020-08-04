@@ -19,35 +19,19 @@ using System.Windows.Shapes;
 
 namespace MovieTimeApp
 {
-    public class Teste
-    {
-        protected string mensagem { get; set; }
-        public Teste()
-        {
-
-        }
-    }
-    public class Exemplo : Teste
-    {
-        private string minhavar { get; set; }
-        public Exemplo()
-        {
-            base.mensagem = "";
-            this.minhavar = "esta é minha var";
-        }
-    }
     /// <summary>
     /// Interação lógica para MainWindow.xam
     /// </summary>
     public partial class MainWindow : Window
     {
         //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
+        private RealTimeClient realTimeClient;
         public MainWindow()
         {
             InitializeComponent();
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
 
-            RealTimeClient realTimeClient = new RealTimeClient(ReceiveData, new IPEndPoint(IPAddress.Loopback, 5010));
+            realTimeClient = new RealTimeClient(ReceiveData, new IPEndPoint(IPAddress.Loopback, 5010));
             realTimeClient.Connect();
             string body = "teste teste2 teste3";
             realTimeClient.Send("SendMessage", "Action", body);
@@ -69,7 +53,7 @@ namespace MovieTimeApp
         }
         public void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
-            MessageBox.Show($"window: {Section}\nmessage: {Body}");
+            MessageBox.Show($"window: {Section}\nmessage: {Body}\nalldata:{AllData}");
         }
     }
 }

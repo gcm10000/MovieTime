@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using WebAssemblyLibrary;
 
@@ -9,6 +10,7 @@ namespace MovieTimeBridge
     class Program
     {
         static WebAssemblyLibrary.Client.Client webClientSocket;
+        static RealTimeServer server;
         static void Main(string[] args)
         {
             //Server websocket
@@ -20,12 +22,13 @@ namespace MovieTimeBridge
             webClientSocket.Receive("ReceiveMessage", ReceiveDataWebSocket);
 
             //Server socket
-            RealTimeServer server = new RealTimeServer(ReceiveDataSocket, 5010);
+            server = new RealTimeServer(ReceiveDataSocket, 5010);
             server.Run();
         }
         static void ReceiveDataWebSocket(string Section, string Body)
         {
             Console.WriteLine("Websocket says: {0}: {1}", Section, Body);
+            server.Send(Verb.GET, "ReceiveMessage", Section, Body);
         }
         static void ReceiveDataSocket(string MethodName, string Section, string Body, bool AllData)
         {
