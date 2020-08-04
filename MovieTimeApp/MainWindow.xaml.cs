@@ -54,7 +54,7 @@ namespace MovieTimeApp
         }
         public void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
-            MessageBox.Show($"window: {Section}\nmessage: {Body}\nalldata:{AllData}");
+            MessageBox.Show($"section: {Section}\nmessage: {Body}\nalldata:{AllData}");
         }
         public void OpenBridge(int socketPort, int webSocketPort)
         {
