@@ -22,7 +22,7 @@ namespace MovieTimeBridge
         }
         private void Receive(StateObject state)
         {
-            // get position of two breaklines. It's a reference to end header and being body
+            // get position of two breaklines. It's a reference to end header and start of body
             var positionBreakLines = state.Message.IndexOf(Environment.NewLine + Environment.NewLine);
             if (positionBreakLines > -1)
             {
