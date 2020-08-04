@@ -59,6 +59,7 @@ namespace MovieTimeApp
             //// Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
             //this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
             this.webBrowser1.Navigate("https://www.google.com/");
+            this.webBrowser1 = this.webBrowser2 = this.webBrowser3;
         }
         public void ReceiveData(string window, string message)
         {

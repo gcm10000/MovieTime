@@ -29,13 +29,12 @@
                 </dragablz:TabablzControl.InterTabController>
                 <TabItem Header="Filmes" Cursor="Hand">
                     <WebBrowser x:Name="webBrowser1"></WebBrowser>
-                    <!--<TextBlock Cursor="Hand" Text="ola mundo" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>-->
                 </TabItem>
                 <TabItem Header="Séries" Cursor="Hand">
-                    <TextBlock Cursor="Hand" Text="teste123" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <WebBrowser x:Name="webBrowser2"></WebBrowser>
                 </TabItem>
                 <TabItem Header="Favoritos" Cursor="Hand">
-                    <TextBlock Cursor="Hand" Text="teste123" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <WebBrowser x:Name="webBrowser3"></WebBrowser>
                 </TabItem>
             </dragablz:TabablzControl>
             <!--<WebBrowser x:Name="webBrowser"></WebBrowser>-->

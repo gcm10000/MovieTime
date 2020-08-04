@@ -25,9 +25,6 @@ namespace MovieTimeApp
 
     public class ClientSocket
     {
-        // The port number for the remote device.  
-        private const int port = 5010;
-
         // ManualResetEvent instances signal completion.  
         private static ManualResetEvent connectDone =
             new ManualResetEvent(false);
@@ -42,8 +39,11 @@ namespace MovieTimeApp
         // The response from the remote device.  
         private String response = String.Empty;
 
-        public ClientSocket()
+
+        public ClientSocket(Action<string> MethodReceive, int port)
         {
+            this.MethodReceive = MethodReceive;
+
             // Connect to a remote device.  
             try
             {
