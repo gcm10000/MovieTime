@@ -13,14 +13,20 @@ namespace MovieTimeApp
     // State object for receiving data from remote device.  
     public class StateObject
     {
-        // Client socket.  
+        // Client  socket.  
         public Socket workSocket = null;
         // Size of receive buffer.  
-        public const int BufferSize = 256;
+        public const int BufferSize = 1024;
         // Receive buffer.  
         public byte[] buffer = new byte[BufferSize];
         // Received data string.  
         public StringBuilder sb = new StringBuilder();
+        public string Message { get => sb.ToString(); }
+        public string Header { get; set; }
+        public string Section { get; set; }
+        public string Body { get; set; }
+        public string Headers { get; set; }
+        public int ContentLength { get; set; }
     }
 
     public class ClientSocket
@@ -34,13 +40,13 @@ namespace MovieTimeApp
             new ManualResetEvent(false);
 
         private Socket client;
-        private Action<string> MethodReceive;
+        private Action<StateObject> MethodReceive;
 
         // The response from the remote device.  
         private String response = String.Empty;
+        private IPEndPoint remoteEP;
 
-
-        public ClientSocket(Action<string> MethodReceive, int port)
+        public ClientSocket(Action<StateObject> MethodReceive, int port)
         {
             this.MethodReceive = MethodReceive;
 
@@ -48,12 +54,23 @@ namespace MovieTimeApp
             try
             {
                 // Establish the remote endpoint for the socket.  
-                IPEndPoint remoteEP = new IPEndPoint(IPAddress.Loopback, port);
+                remoteEP = new IPEndPoint(IPAddress.Loopback, port);
 
                 // Create a TCP/IP socket.  
                 client = new Socket(AddressFamily.InterNetwork,
                     SocketType.Stream, ProtocolType.Tcp);
 
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+        public void Connect()
+        {
+            try
+            {
                 // Connect to the remote endpoint.  
                 client.BeginConnect(remoteEP,
                     new AsyncCallback(ConnectCallback), client);
@@ -85,11 +102,6 @@ namespace MovieTimeApp
             {
                 Console.WriteLine(e.ToString());
             }
-        }
-
-        public void Receive(Action<string> MethodReceive)
-        {
-            this.MethodReceive = MethodReceive;
         }
         private void Receive(Socket client)
         {
@@ -124,7 +136,7 @@ namespace MovieTimeApp
                 if (bytesRead > 0)
                 {
                     // There might be more data, so store the data received so far.  
-                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+                    state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
 
                     // Get the rest of the data.  
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
@@ -151,7 +163,7 @@ namespace MovieTimeApp
         public void Send(String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  
             client.BeginSend(byteData, 0, byteData.Length, 0,
