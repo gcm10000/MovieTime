@@ -8,6 +8,6 @@ VERB:
 -------------------
 PLAY -> Render to Software
 
-VERB FUNCTION
+VERB MethodName
 Content-Length: Length
-
+Section: NameSection

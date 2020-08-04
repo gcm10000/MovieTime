@@ -39,6 +39,7 @@ namespace MovieTimeApp
                 state.Headers = state.Header.Substring(state.Header.IndexOf(Environment.NewLine));
                 state.ContentLength = ParseContentLength(state.Headers);
                 state.Section = ParseSection(state.Headers);
+                RealTimeProtocol protocol = new RealTimeProtocol(state);
                 // All the data has been read from the client.
                 var positionBody = positionBreakLines + (Environment.NewLine.Length * 2);
                 if (state.Message.Length > positionBody)
