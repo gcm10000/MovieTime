@@ -19,13 +19,30 @@ using System.Windows.Shapes;
 
 namespace MovieTimeApp
 {
+    public class Teste
+    {
+        protected string mensagem { get; set; }
+        public Teste()
+        {
+
+        }
+    }
+    public class Exemplo : Teste
+    {
+        private string minhavar { get; set; }
+        public Exemplo()
+        {
+            base.mensagem = "";
+            this.minhavar = "esta é minha var";
+        }
+    }
     /// <summary>
     /// Interação lógica para MainWindow.xam
     /// </summary>
     public partial class MainWindow : Window
     {
         //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
-        ClientSocket client;
+        private ClientSocket client;
         public MainWindow()
         {
             InitializeComponent();
