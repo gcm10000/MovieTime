@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Linq;
 using System.Net;
@@ -13,8 +14,15 @@ namespace MovieTimeBridge
         static RealTimeServer server;
         static void Main(string[] args)
         {
+            int portSocket = 5010;
+            int portWebSocket = 5000;
+            if (args.Length == 2)
+            {
+                portSocket = int.Parse(args[0]);
+                portWebSocket = int.Parse(args[1]);
+            }
             //Server websocket
-            var WebHost = WebAssemblyLibrary.Server.WebAssembly.CreateWebHostBuilder().Build();
+            var WebHost = WebAssemblyLibrary.Server.WebAssembly.CreateWebHostBuilder(portWebSocket).Build();
             Task.Run(() => { WebHost.Run(); });
 
             //Client websocket
@@ -22,7 +30,7 @@ namespace MovieTimeBridge
             webClientSocket.Receive("ReceiveMessage", ReceiveDataWebSocket);
 
             //Server socket
-            server = new RealTimeServer(ReceiveDataSocket, 5010);
+            server = new RealTimeServer(ReceiveDataSocket, portSocket);
             server.Run();
         }
         static void ReceiveDataWebSocket(string Section, string Body)

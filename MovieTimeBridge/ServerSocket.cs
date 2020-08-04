@@ -70,34 +70,45 @@ namespace MovieTimeBridge
 
         private void ReadCallback(IAsyncResult ar)
         {
-            String content = String.Empty;
-
-            // Retrieve the state object and the handler socket  
-            // from the asynchronous state object.  
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-
-            // Read data from the client socket.
-            int bytesRead = handler.EndReceive(ar);
-
-            if (bytesRead > 0)
+            try
             {
-                // There might be more data, so store the data received so far.  
-                state.sb.Append(Encoding.UTF8.GetString(
-                    state.buffer, 0, bytesRead));
+                String content = String.Empty;
 
-                content = state.sb.ToString();
-                MethodReceive.Invoke(state);
+                // Retrieve the state object and the handler socket  
+                // from the asynchronous state object.  
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket handler = state.workSocket;
 
-                // Get more.
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
+                // Read data from the client socket.
+                int bytesRead = handler.EndReceive(ar);
+
+                if (bytesRead > 0)
+                {
+                    // There might be more data, so store the data received so far.  
+                    state.sb.Append(Encoding.UTF8.GetString(
+                        state.buffer, 0, bytesRead));
+
+                    content = state.sb.ToString();
+                    MethodReceive.Invoke(state);
+
+                    // Get more.
+                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReadCallback), state);
+                }
+            }
+            catch (SocketException)
+            {
+                //connection undo
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
         public void Send(Socket handler, String data)
         {
-            // Convert the string data to byte data using ASCII encoding.  
+            // Convert the string data to byte data using UTF-8 encoding.  
             byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  
@@ -110,19 +121,15 @@ namespace MovieTimeBridge
             try
             {
                 // Retrieve the socket from the state object.  
-                Socket handler = (Socket)ar.AsyncState;
+                Socket client = (Socket)ar.AsyncState;
 
                 // Complete sending the data to the remote device.  
-                int bytesSent = handler.EndSend(ar);
-                //Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                //handler.Shutdown(SocketShutdown.Both);
-                //handler.Close();
-
+                int bytesSent = client.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
             }
             catch (Exception e)
             {
-                throw e;
+                Console.WriteLine(e.ToString());
             }
         }
     }

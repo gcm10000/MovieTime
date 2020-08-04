@@ -75,6 +75,7 @@ namespace MovieTimeApp
                 client.BeginConnect(remoteEP,
                     new AsyncCallback(ConnectCallback), client);
                 connectDone.WaitOne();
+                Receive(client);
             }
             catch (Exception e)
             {
@@ -123,46 +124,34 @@ namespace MovieTimeApp
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            try
+            String content = String.Empty;
+
+            // Retrieve the state object and the handler socket  
+            // from the asynchronous state object.  
+            StateObject state = (StateObject)ar.AsyncState;
+            Socket handler = state.workSocket;
+
+            // Read data from the client socket.
+            int bytesRead = handler.EndReceive(ar);
+
+            if (bytesRead > 0)
             {
-                // Retrieve the state object and the client socket
-                // from the asynchronous state object.  
-                StateObject state = (StateObject)ar.AsyncState;
-                Socket client = state.workSocket;
+                // There might be more data, so store the data received so far.  
+                state.sb.Append(Encoding.UTF8.GetString(
+                    state.buffer, 0, bytesRead));
 
-                // Read data from the remote device.  
-                int bytesRead = client.EndReceive(ar);
+                content = state.sb.ToString();
+                MethodReceive.Invoke(state);
 
-                if (bytesRead > 0)
-                {
-                    // There might be more data, so store the data received so far.  
-                    state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
-
-                    // Get the rest of the data.  
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                        new AsyncCallback(ReceiveCallback), state);
-                }
-                else
-                {
-                    // All the data has arrived; put it in response.  
-                    if (state.sb.Length > 1)
-                    {
-                        response = state.sb.ToString();
-                    }
-                    // Signal that all bytes have been received.  
-                    receiveDone.Set();
-                    this.MethodReceive.Invoke(state);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                // Get more.
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                new AsyncCallback(ReceiveCallback), state);
             }
         }
 
         public void Send(String data)
         {
-            // Convert the string data to byte data using ASCII encoding.  
+            // Convert the string data to byte data using UTF-8 encoding.  
             byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  

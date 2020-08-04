@@ -45,7 +45,7 @@ namespace MovieTimeApp
             }
             this.ContentLength = ParseContentLength(state.Headers);
             this.Section = ParseSection(state.Headers);
-            this.NameMethod = ParseNameMethod(state.Headers);
+            this.NameMethod = ParseNameMethod(state.Header);
         }
         public string AppendBody(string body)
         {
