@@ -30,8 +30,6 @@ namespace MovieTimeApp
         public MainWindow()
         {
             InitializeComponent();
-
-            OpenBridge(5010, 5000);
             var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
 
             realTimeClient = new RealTimeClient(ReceiveData, new IPEndPoint(IPAddress.Loopback, 5010));
@@ -60,18 +58,18 @@ namespace MovieTimeApp
         }
         public void OpenBridge(int socketPort, int webSocketPort)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "bridge", "movietimebridge.exe");
-            startInfo.FileName = path;
-            startInfo.Arguments = $"{socketPort} {webSocketPort}";
+            StartProcess(path, $"{socketPort} {webSocketPort}");
+        }
+        private void StartProcess(string FileName, string Arguments)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = FileName;
+            startInfo.Arguments = Arguments;
             Process process = new Process();
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardInput = true;
-            process.EnableRaisingEvents = true;
             process.StartInfo = startInfo;
             process.Start();
+
         }
 
     }
