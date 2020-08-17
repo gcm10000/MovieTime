@@ -25,12 +25,18 @@ namespace MovieTimeApp
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        // https://github.com/videojs/video.js/issues/5910
+        //  A RESPEITO DA LEITURA DE MKV
+        // you can sometimes get some MKVs to play in browsers that support webm, because webm is a subset of MKV
+
         //MOVIETIME - SOCKET CLIENT - WEBASSEMBLY (SOCKET SERVER) - WEBSOCKET - BROWSER EMBEDDED (INTERNET EXPLORER)
         private RealTimeClient realTimeClient;
         private const int socketPort = 5010;
         private const int webSocketPort = 5000;
         public MainWindow()
         {
+            Helper.SetLastVersionIE();
             OpenBridge(socketPort, webSocketPort);
 
             InitializeComponent();
@@ -48,8 +54,8 @@ namespace MovieTimeApp
 
             //// Load libvlc libraries and initializes stuff. It is important that the options (if you want to pass any) and lib directory are given before calling this method.
             //this.myVideoControl.SourceProvider.MediaPlayer.Play("https://www.w3schools.com/html/mov_bbb.mp4");
-            this.webBrowser1.Navigate("https://www.google.com/");
-            this.webBrowser1 = this.webBrowser2 = this.webBrowser3;
+            this.webBrowser.Navigate("https://www.google.com/");
+            //this.webBrowser = this.webBrowser2 = this.webBrowser3;
         }
         public void ReceiveData(string MethodName, string Section, string Body, bool AllData)
         {
@@ -76,22 +82,7 @@ namespace MovieTimeApp
         }
         public void OpenPeerflix()
         {
-            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "bridge", "movietimebridge.exe");
-            //StartProcess(path, $"{socketPort} {webSocketPort}");
-            StartProcess(path, $"{socketPort} {webSocketPort}", (o, outLine) =>
-            {
-                if (!String.IsNullOrEmpty(outLine.Data))
-                {
-                    Console.WriteLine("Info Bridge: {0}", outLine.Data);
-                    // Add the text to the collected output.
-                    if (outLine.Data.ToLower().Contains("server ready"))
-                    {
-                        realTimeClient.Connect();
-                        string body = "teste teste2 teste3";
-                        realTimeClient.Send("SendMessage", "Action", body);
-                    }
-                }
-            });
+            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "peerflix", "peerflix.exe");
         }
         public void StartProcess(string FileName, string Arguments, Action<object, DataReceivedEventArgs> Data)
         {
