@@ -1,17 +1,36 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetCore.CAP" Version="8.1.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MovieTimeLibraryCore\MovieTimeLibraryCore.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Application\TchotchomereCore.Application.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Domain\TchotchomereCore.Domain.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Infrastructure.MovieDB\TchotchomereCore.Infrastructure.MovieDB.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Infrastructure.Queue\TchotchomereCore.Infrastructure.Queue.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Infrastructure.Sql\TchotchomereCore.Infrastructure.Sql.csproj" />
+    <ProjectReference Include="..\TchotchomereCore.Infrastructure.TeuTorrent\TchotchomereCore.Infrastructure.TeuTorrent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

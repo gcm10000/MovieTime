@@ -56,6 +56,7 @@ namespace TchotchomereCore
             }
             return list;
         }
+
         public static List<string> ExtractUrlSameHost(string html, string host)
         {
             List<string> list = new List<string>();
